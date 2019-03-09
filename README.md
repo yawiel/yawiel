@@ -1,4 +1,6 @@
 # YAWIEL
+[![Build Status](https://travis-ci.org/yawiel/yawiel.svg?branch=master)](https://travis-ci.org/yawiel/yawiel)
+
 Yet Another WIkifier and Entity Linker
 
 ## Build
