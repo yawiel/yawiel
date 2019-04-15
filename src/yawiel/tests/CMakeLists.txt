@@ -1,6 +1,9 @@
 add_executable(yawiel_test
   yawiel_test.cpp
   corpus_test.cpp
+  ngram_counter_test.cpp
+  eam_test.cpp
+  colext_test.cpp
 )
 
 target_include_directories(yawiel_test PRIVATE ${Boost_INCLUDE_DIRS})

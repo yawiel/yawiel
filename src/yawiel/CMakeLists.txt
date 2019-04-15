@@ -4,6 +4,7 @@ set(YAWIEL_SRCS ${YAWIEL_SRCS}
 
 # Add subdirectories.
 add_subdirectory(core)
+add_subdirectory(colext)
 
 # Build yawiel library.
 add_library(yawiel SHARED ${YAWIEL_SRCS})
