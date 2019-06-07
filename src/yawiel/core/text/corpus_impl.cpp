@@ -3,129 +3,140 @@
 
 #include "corpus.hpp"
 #include <boost/algorithm/string.hpp>
-#include <algorithm>
+#include <boost/tokenizer.hpp>
 #include <fstream>
+
+#include <ctime>
+#include <iostream>
+
+using namespace yawiel;
 
 namespace yawiel{
 namespace text{
 
 template<typename StringType>
 Corpus<StringType>::Corpus():
-  corpus(nullptr),
-  corpusTokens(nullptr),
-  frecuencies(nullptr)
-{}
-
-template<typename StringType>
-Corpus<StringType>::Corpus(StringType corpus):
-  corpus(new StringType(std::move(corpus))),
-  corpusTokens(new std::vector<StringType>()),
-  frecuencies(new HashTable())
+  vocabulary(nullptr),
+  corpusTokens(nullptr)
 {
-  boost::algorithm::split(*corpusTokens, *(this->corpus), boost::is_any_of(" ,,,(,),."));
+  SetSeparators(GetDefaultSeparators());
 }
 
 template<typename StringType>
 void Corpus<StringType>::loadFile(const std::string& filePath)
 {
-  if (corpus)
-    delete corpus;
+  std::time_t now = time(0);
+  std::cout << "LOAD FILE: " << now << std::endl;
+  if (vocabulary)
+    delete vocabulary;
   if (corpusTokens)
     delete corpusTokens;
 
-  corpusTokens = new std::vector<StringType>();
-  std::ifstream file(filePath);
+  vocabulary = new containers::Vocabulary<StringType>;
+  corpusTokens = new std::vector<size_t>;
+
+  std::basic_ifstream<typename StringType::value_type> file(filePath);
   StringType tempString;
-  std::vector<StringType> tempTokens;
-  while (std::getline(file, tempString))
+  std::vector<StringType> tokens;
+  while (std::getline<typename StringType::value_type>(file, tempString))
   {
-    
-    boost::algorithm::split(tempTokens, tempString, boost::is_any_of(" ,,,(,),."" "));
-    for (auto token: tempTokens)
-      corpusTokens->push_back(std::move(token));
+    TokenizeLine(tempString, tokens);
+    // Add new tokens to vocabulary.
+    for (auto token = tokens.begin(); token != tokens.end(); ++token)
+      vocabulary->AddToken(*token);
+    // Add new tokens to the corpus.
+    for (auto token = tokens.cbegin(); token != tokens.cend(); ++token)
+      corpusTokens->push_back(vocabulary->at(*token));
   }
+
+  now = time(0);
+  std::cout << "FINISHED LOADING: " << now << std::endl;
+}
+
+template<typename StringType>
+void Corpus<StringType>::loadString(StringType text)
+{
+  if (vocabulary)
+    delete vocabulary;
+  if (corpusTokens)
+    delete corpusTokens;
+
+  vocabulary = new containers::Vocabulary<StringType>;
+  corpusTokens = new std::vector<size_t>;
+
+  std::vector<StringType> tokens;
+
+  TokenizeLine(text, tokens);
+  // Add new tokens to vocabulary.
+  for (auto token = tokens.begin(); token != tokens.end(); ++token)
+    vocabulary->AddToken(*token);
+  // Add new tokens to the corpus.
+  for (auto token = tokens.cbegin(); token != tokens.cend(); ++token)
+    corpusTokens->push_back(vocabulary->at(*token));
 }
 
 template<typename StringType>
 Corpus<StringType>::~Corpus()
 {
-  if (corpus)
-    delete corpus;
+  if (vocabulary)
+    delete vocabulary;
   if (corpusTokens)
     delete corpusTokens;
-  if (frecuencies)
-    delete frecuencies;
 }
-  /*
+
 template<typename StringType>
-size_t Corpus<StringType>::frecuency(const StringType& ngram)
+void Corpus<StringType>::
+SetSeparators(StringType newSeparators)
 {
-  typename HashTable::const_iterator it = frecuencies->find(ngram);
-  if (it != frecuencies->cend())
-    return it->second;
-  else
-    return calculateFrecuency(ngram)->second;
+  separators = std::move(newSeparators);
 }
-*/
+
 template<typename StringType>
 size_t Corpus<StringType>::totalNGrams(const size_t n) const
 {
   return corpusTokens->size() - n + 1;
 }
-/*
+
 template<typename StringType>
-std::unordered_map<StringType, double> Corpus<StringType>::GetScores(const size_t n)
+void Corpus<StringType>::TokenizeLine(StringType& text,
+                                      std::vector<StringType>& tokensStrings)
 {
-  std::unordered_map<StringType, double> scores;
-  typename std::vector<StringType>::const_iterator firstWord, lastWord;
-  firstWord = corpusTokens->cbegin();
-  lastWord = firstWord + n;
-  // Iterate through n-grams.
-  for (; lastWord != corpusTokens->cend(); ++firstWord, ++lastWord)
-  {
-    StringType str;
-    for (auto it = firstWord; it != lastWord; ++it)
-      str += StringType(it->first, it->second) + StringType(" ");
-    str.pop_back();
-    scores.insert({str, frecuency(str)});
-  }
-  return scores;
+  tokensStrings.clear();
+
+  // Lowercase.
+  boost::algorithm::to_lower(text);
+
+  typedef boost::tokenizer<
+      boost::char_separator<typename StringType::value_type>,
+      typename StringType::const_iterator,
+      StringType> tokenizer;
+
+  boost::char_separator<typename StringType::value_type>
+      sep(separators.c_str());
+  tokenizer tokens(text, sep);
+
+  for (auto it = tokens.begin(); it != tokens.end(); ++it)
+    tokensStrings.push_back(*it);
 }
 
 template<typename StringType>
-typename Corpus<StringType>::HashTable::const_iterator Corpus<StringType>::calculateFrecuency(const StringType& ngram)
+template<typename Archive>
+void Corpus<StringType>::serialize(Archive& ar,
+                                   const unsigned int /* version */)
 {
-  size_t count = 0;
-  std::vector<Word> ngramTokens;
-  Tokenize(ngram, ngramTokens);
-  const size_t n = ngramTokens.size();
-  for (auto itCo = corpusTokens->cbegin(); itCo != corpusTokens->cend(); ++itCo)
+  // Clean memory if necessary.
+  if (Archive::is_loading::value)
   {
-    bool equal = true;
-    auto itGr = ngramTokens.cbegin();
-    auto itCo2 = itCo;
-    while (equal && itGr != ngramTokens.cend())
-    {
-      if (StringType(itCo2->first, itCo2->second) !=
-          StringType(itGr->first, itGr->second))
-      {
-        equal = false;
-      }
-      ++itGr;
-      ++itCo2;
-    }
-    if (equal)
-      ++count;
+    delete vocabulary;
+    delete corpusTokens;
+    //delete[] separators;
   }
-  return (frecuencies->insert({ngram, count})).first;
+
+  ar & BOOST_SERIALIZATION_NVP(vocabulary);
+  ar & BOOST_SERIALIZATION_NVP(corpusTokens);
+  //ar & BOOST_SERIALIZATION_NVP(separators);
 }
 
-template<typename StringType>
-void Corpus<StringType>::Tokenize(const StringType& ngram, std::vector<Word>& tokens)
-{
-  boost::algorithm::split(tokens, ngram, boost::is_any_of(" "));
-}
-  */
 }
 }
 

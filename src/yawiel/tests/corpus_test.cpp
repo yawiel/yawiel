@@ -13,48 +13,66 @@ class TestRule
  private:
   std::vector<StringType> ngrams;
 
-  //const std::vector<StringType>& tokens;
+  const std::vector<size_t>& tokens;
+
+  const Corpus<StringType>& corpus;
 
  public:
-  //TestRule(const std::vector<StringType>& tokens) :
-  //  tokens(tokens)
-  //{}
+  TestRule(const std::vector<size_t>& tokens, const Corpus<StringType>& corpus):
+    tokens(tokens),
+    corpus(corpus)
+  {}
+
   void Base(const typename Corpus<StringType>::NGram ngram)
   {
+    const containers::Vocabulary<StringType>& vocab = corpus.GetVocabulary();
     StringType str;
-    for (auto it = ngram.first; it != ngram.second; ++it)
-      str += *it + "-";
+    for (size_t i = ngram.first; i != ngram.second; ++i)
+      str += vocab.at(tokens.at(i)) + L"-";
+    str.pop_back();
     ngrams.push_back(str);
   }
 
   std::vector<StringType> getNGrams(){ return ngrams; }
 };
 
-BOOST_AUTO_TEST_CASE(IntantiationTest)
+BOOST_AUTO_TEST_CASE(InstantiationTest)
 {
-  yawiel::text::Corpus<> corpus(std::string("Hi my ou is my name and ou is my name surname"));
+  yawiel::text::Corpus<> corpus;
 }
 
 BOOST_AUTO_TEST_CASE(GramLeftToRightTest)
 {
-  const std::string text = "Hi my name is Yawiel";
-  Corpus<> corpus(text);
-  TestRule<std::string> rules;
-  typedef GramLeftToRightTraverser<TestRule<std::string>, std::string> TRV;
+  const std::wstring text = L"hi my name is Yawiel";
+  Corpus<> corpus;
+  corpus.loadString(text);
+  TestRule<std::wstring> rules(corpus.GetTokens(), corpus);
+  typedef GramLeftToRightTraverser<TestRule<std::wstring>, std::wstring> TRV;
   TRV traverser(rules, corpus);
   traverser.Traverse(2);
-  std::vector<std::string> ngrams = std::move(rules.getNGrams());
-  for (auto i: ngrams)
-    break; // std::cout << i << std::endl;
+  std::vector<std::wstring> ngrams = std::move(rules.getNGrams());
+  BOOST_REQUIRE(ngrams[0] == L"hi-my");
+  BOOST_REQUIRE(ngrams[1] == L"my-name");
+  BOOST_REQUIRE(ngrams[2] == L"name-is");
+  BOOST_REQUIRE(ngrams[3] == L"is-yawiel");
 }
 
+/*
 BOOST_AUTO_TEST_CASE(FileLoadTest)
 {
   yawiel::text::Corpus<> corpus;
   corpus.loadFile("SmallText.txt");
   for (auto token: corpus.GetTokens())
-    //std::cout << token << std::endl;
     break;
 }
+*/
+
+/*
+BOOST_AUTO_TEST_CASE(UTF16FileLoadTest)
+{
+  yawiel::text::Corpus<std::u16string> corpus;
+  corpus.loadFile("SmallText.txt");
+}
+*/
 
 BOOST_AUTO_TEST_SUITE_END();

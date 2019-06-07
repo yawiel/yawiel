@@ -2,52 +2,69 @@
 #define YAWIEL_CORE_TEXT_CORPUS_HPP
 
 #include <yawiel/prereqs.hpp>
-#include <unordered_map>
+#include <yawiel/core/containers/vocabulary.hpp>
 #include <vector>
+
+using namespace yawiel;
 
 namespace yawiel{
 namespace text{
 
-template<typename StringType = std::string>
+template<typename StringType = std::wstring>
 class Corpus
 {
+ private:
+  containers::Vocabulary<StringType>* vocabulary;
+
+  std::vector<size_t>* corpusTokens;
+
+  StringType separators;
+
+  void TokenizeLine(StringType& text,
+                    std::vector<StringType>& tokensStrings);
+
  public:
-  typedef std::unordered_map<StringType, size_t> HashTable;
-
-  typedef std::pair<const typename std::vector<StringType>::const_iterator,
-                    const typename std::vector<StringType>::const_iterator>
-                      NGram;
-
-  typedef std::pair<typename StringType::const_iterator,
-                    typename StringType::const_iterator> Word;
+  typedef std::pair<size_t, size_t> NGram;
 
   Corpus();
-
-  Corpus(StringType corpus);
 
   ~Corpus();
 
   void loadFile(const std::string& filePath);
 
-  size_t frecuency(const StringType& ngram);
+  void loadString(StringType text);
+
+  void SetSeparators(StringType newSeparators);
 
   size_t totalNGrams(const size_t n) const;
 
-  std::unordered_map<StringType, double> GetScores(const size_t n = 2);
+  const std::vector<size_t>& GetTokens() const { return *corpusTokens; };
 
-  const std::vector<StringType>& GetTokens() const { return *corpusTokens; };
+  const containers::Vocabulary<StringType>& GetVocabulary() const
+      { return *vocabulary; }
 
- private:
-  StringType* corpus;
+  template<typename T = StringType>
+  T GetDefaultSeparators(const typename std::enable_if<
+                         std::is_same<T, std::string>::value>::type* = 0)
+  { return " :!?=,.()[]\"/_-\'*+#"; }
 
-  //std::vector<Word>* corpusTokens;
-  std::vector<StringType>* corpusTokens;
+  template<typename T = StringType>
+  T GetDefaultSeparators(const typename std::enable_if<
+                         std::is_same<T, std::wstring>::value>::type* = 0)
+  { return L" :!?=,.()[]\"/_-\'*+#"; }
 
-  HashTable* frecuencies;
+  template<typename T = StringType>
+  T GetDefaultSeparators(const typename std::enable_if<
+                         std::is_same<T, std::u16string>::value>::type* = 0)
+  { return u" :!?=,.()[]\"/_-\'*+#"; }
 
-  typename HashTable::const_iterator calculateFrecuency(const StringType& ngram);
+  template<typename T = StringType>
+  T GetDefaultSeparators(const typename std::enable_if<
+                         std::is_same<T, std::u32string>::value>::type* = 0)
+  { return U" :!?=,.()[]\"/_-\'*+#"; }
 
-  void Tokenize(const StringType& ngram, std::vector<Word>& tokens);
+  template<typename Archive>
+  void serialize(Archive& ar, const unsigned int /* version */);
 };
 
 }
