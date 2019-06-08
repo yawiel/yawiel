@@ -7,11 +7,13 @@ add_executable(yawiel_test
   container_test.cpp
 )
 
-target_include_directories(yawiel_test PRIVATE ${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+#target_include_directories(yawiel_test PRIVATE ${Boost_INCLUDE_DIRS})
 #target_compile_definitions(yawiel_test PRIVATE "BOOST_TEST_DYN_LINK=1")
 target_link_libraries(yawiel_test
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    ${Boost_SERIALIZATION_LIBRARY})
+#    #${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+#    #${Boost_SERIALIZATION_LIBRARY}
+    ${Boost_LIBRARIES})
 # JUST FOR DWS TESTING PURPOSE USE ALL STATIC.
 
 # descomentar -- set(CMAKE_EXE_LINKER_FLAGS "-static")
