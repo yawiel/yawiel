@@ -14,7 +14,7 @@ target_link_libraries(yawiel_test
     ${Boost_SERIALIZATION_LIBRARY})
 # JUST FOR DWS TESTING PURPOSE USE ALL STATIC.
 
-set(CMAKE_EXE_LINKER_FLAGS "-static")
+# descomentar -- set(CMAKE_EXE_LINKER_FLAGS "-static")
 #set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 target_link_libraries(yawiel_test -static-libgcc -static-libstdc++)
 # /lib64/libc.a /lib64/libm.a /usr/lib/libdl.a
