@@ -92,6 +92,17 @@ SetSeparators(StringType newSeparators)
 }
 
 template<typename StringType>
+StringType Corpus<StringType>::
+VectorToString(const std::vector<size_t>& ngram, typename StringType::value_type separator) const
+{
+  StringType string;
+  for (size_t i = 0; i < ngram.size(); ++i)
+    string += vocabulary->at(ngram[i]) + separator;
+  string.pop_back();
+  return string;
+}
+
+template<typename StringType>
 size_t Corpus<StringType>::totalNGrams(const size_t n) const
 {
   return corpusTokens->size() - n + 1;

@@ -18,6 +18,13 @@ template<typename StringType,
 class Colext
 {
  private:
+  // Default strings.
+  static const typename StringType::value_type QUOTE = '\"';
+
+  static const typename StringType::value_type STRING_SEPARATOR = ' ';
+
+  static const typename StringType::value_type CSV_SEPARATOR = ',';
+
   // Comparator for sorting result scores.
   struct SortPred
   {
@@ -40,6 +47,10 @@ class Colext
 
   void GetSortedScores(vector<pair<vector<size_t>, double>>& scores,
                        const size_t n = 3);
+
+  void ScoresToCSV(const vector<pair<vector<size_t>, double>>& scores,
+                   const std::string filePath,
+                   const typename StringType::value_type CSVSeparator = CSV_SEPARATOR);
 };
 
 }

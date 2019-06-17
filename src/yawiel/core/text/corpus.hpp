@@ -36,6 +36,9 @@ class Corpus
 
   void SetSeparators(StringType newSeparators);
 
+  StringType VectorToString(const std::vector<size_t>& ngram,
+                            typename StringType::value_type separator) const;
+
   size_t totalNGrams(const size_t n) const;
 
   const std::vector<size_t>& GetTokens() const { return *corpusTokens; };

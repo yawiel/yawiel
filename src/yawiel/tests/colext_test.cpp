@@ -72,7 +72,8 @@ void EvalColext(Corpus<StringType>& corpus,
   vector<pair<vector<size_t>, double>> scores;
   Colext<StringType, EP, AM> colext(corpus,counter);
   colext.GetSortedScores(scores, n);
-  PrintExtremes(scores, corpus);
+  //PrintExtremes(scores, corpus);
+  colext.ScoresToCSV(scores, "scores.csv");
   scores.clear();
 }
 
@@ -86,6 +87,7 @@ BOOST_AUTO_TEST_CASE(SortedScoresTest)
   vector<pair<vector<size_t>, double>> scores;
 
   // Some tests.
+  /*
   std::cout << "--- G0 - LogLike - n3 ------" << std::endl;
   EvalColext<string, G0<string, LogLikelihood<string>>, LogLikelihood<string>>
     (corpus, counter, 3);
@@ -93,11 +95,11 @@ BOOST_AUTO_TEST_CASE(SortedScoresTest)
   std::cout << "--- G0 - ChiSquared - n3 ---" << std::endl;
   EvalColext<string, G0<string, ChiSquared<string>>, ChiSquared<string>>
     (corpus, counter, 3);
-
+  */
   std::cout << "--- G1 - PMI - n3 ----------" << std::endl;
   EvalColext<string, G1<string, PMI<string>>, PMI<string>>
     (corpus, counter, 3);
-
+  /*
   std::cout << "--- G2 - Dice - n3 ---------" << std::endl;
   EvalColext<string, G2<string, Dice<string>>, Dice<string>>
     (corpus, counter, 3);
@@ -109,6 +111,7 @@ BOOST_AUTO_TEST_CASE(SortedScoresTest)
   std::cout << "--- G5 - PMI - n2 ----------" << std::endl;
   EvalColext<string, G4<string, PMI<string>>, PMI<string>>
     (corpus, counter, 2);
+  */
 }
 
 BOOST_AUTO_TEST_SUITE_END();

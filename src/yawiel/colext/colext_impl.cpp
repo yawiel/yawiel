@@ -74,6 +74,27 @@ GetSortedScores(vector<pair<vector<size_t>, double>>& scores, const size_t n)
   std::cout << "FINISH COMPUTING: " << now << std::endl;
 }
 
+template<typename StringType,
+         typename EPType,
+         typename AMType>
+void Colext<StringType, EPType, AMType>::
+ScoresToCSV(const vector<pair<vector<size_t>, double>>& scores,
+            const std::string filePath,
+            const typename StringType::value_type CSVSeparator)
+{
+  std::basic_ofstream<typename StringType::value_type> file(filePath);
+  file << "ngram,score" << std::endl;
+  for (size_t i = 0; i < scores.size(); ++i)
+  {
+    // Write string to file.
+    file << QUOTE << corpus.VectorToString(scores[i].first, STRING_SEPARATOR)
+         << QUOTE;
+    // Write score.
+    file << CSVSeparator << scores[i].second << std::endl;
+  }
+  file.close();
+}
+
 }
 }
 
