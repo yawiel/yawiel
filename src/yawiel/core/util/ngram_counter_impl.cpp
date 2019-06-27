@@ -6,9 +6,8 @@
 namespace yawiel{
 namespace util{
 
-template<typename StringType>
-void NGramCounterRule<StringType>::
-Base(const typename text::Corpus<StringType>::NGram ngram)
+template<typename CorpusType>
+void NGramCounterRule<CorpusType>::Base(const typename CorpusType::NGram ngram)
 {
   size_t firstGram = ngram.first;
   const size_t lastGram = ngram.second;
@@ -26,55 +25,75 @@ Base(const typename text::Corpus<StringType>::NGram ngram)
 template<typename StringType>
 NGramCounter<StringType>::NGramCounter(const text::Corpus<StringType>& corpus) :
   corpus(corpus),
-  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>)
+  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>),
+  ownCounts(true)
 {
   // Nothing to do.
 }
 
 template<typename StringType>
+NGramCounter<StringType>::NGramCounter(const NGramCounter<StringType>& other) :
+  corpus(other.corpus),
+  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>
+             (*other.counts)),
+  ownCounts(true)
+{
+  // Nothing to do.
+}
+
+template<typename StringType>
+NGramCounter<StringType>::NGramCounter(NGramCounter<StringType>&& other) :
+  corpus(other.corpus),
+  counts(other.counts),
+  ownCounts(true)
+{
+  other.counts = new std::map<size_t, NGramCounter<StringType>::CountsType>;
+  other.ownCounts = true;
+}
+
+template<typename StringType>
 NGramCounter<StringType>::~NGramCounter()
 {
-  delete counts;
+  if (ownCounts)
+    delete counts;
 }
 
 template<typename StringType>
 void NGramCounter<StringType>::
 Count(const size_t n, NGramCounter<StringType>::CountsType& map)
 {
-  NGramCounterRule<StringType> rule(map, corpus, n);
+  //Create rule.
+  NGramCounterRule<text::Corpus<StringType>> rule(map, corpus, n);
+
+  // Create corpus traverser for the rule.
   typedef text::GramLeftToRightTraverser<
-    NGramCounterRule<StringType>, StringType> TRV;
+      NGramCounterRule<text::Corpus<StringType>>, StringType> TRV;
   TRV traverser(rule, corpus);
+
+  // Count ngrams.
   traverser.Traverse(n);
 }
 
 template<typename StringType>
-const typename NGramCounter<StringType>::CountsType&
-NGramCounter<StringType>::GetCounts(const size_t n)
+void NGramCounter<StringType>::ComputeCounts(const size_t n)
 {
   auto it = counts->find(n);
   if (it == counts->cend())
   {
     counts->emplace(n, NGramCounter<StringType>::CountsType());
     Count(n, counts->at(n));
-    return counts->at(n);
   }
-  return it->second;
 }
 
 template<typename StringType>
 size_t NGramCounter<StringType>::GetCounts(const std::vector<size_t>& ngram)
 {
-  auto it = counts->find(ngram.size());
-  if (it == counts->cend())
-  {
-    counts->emplace(ngram.size(), NGramCounter<StringType>::CountsType());
-    Count(ngram.size(), counts->at(ngram.size()));
-    it = counts->find(ngram.size());
-  }
-  auto findNGram = (it->second).find(ngram);
-  if (findNGram != (it->second).end())
-    return findNGram->second;
+  const NGramCounter<StringType>::CountsType& nCounts =
+      counts->at(ngram.size());
+  const auto it = nCounts.find(ngram);
+
+  if (it != nCounts.cend())
+    return it->second;
   else
     return 0;
 }
@@ -91,7 +110,11 @@ serialize(Archive& ar, const unsigned int /* version */)
   // Clean memory if necessary.
   if (Archive::is_loading::value)
   {
-    delete counts;
+    if (ownCounts)
+      delete counts;
+
+    // Now it owns the counts.
+    ownCounts = true;
   }
 
   ar & BOOST_SERIALIZATION_NVP(counts);
