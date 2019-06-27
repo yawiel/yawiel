@@ -4,14 +4,21 @@
 #include "pmi.hpp"
 #include <yawiel/prereqs.hpp>
 #include <iostream>
+using namespace std;
 
 namespace yawiel{
 namespace colext{
 
-template<typename StringType>
-double PMI<StringType>::Evaluate(const vector<size_t>& ngram1,
-                                 const vector<size_t>& ngram2,
-                                 NGramCounter<StringType>& counter)
+template<typename CounterType>
+void PMI<CounterType>::Precompute(const size_t maxN)
+{
+  for (size_t i = maxN; i > 0; --i)
+    counter.ComputeCounts(i);
+}
+
+template<typename CounterType>
+double PMI<CounterType>::Evaluate(const vector<size_t>& ngram1,
+                                  const vector<size_t>& ngram2) const
 {
   const size_t sizeNGram1 = ngram1.size();
   const size_t sizeNGram2 = ngram2.size();

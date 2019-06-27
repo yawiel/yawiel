@@ -5,13 +5,21 @@
 #include <yawiel/prereqs.hpp>
 #include <iostream>
 
+using namespace std;
+
 namespace yawiel{
 namespace colext{
 
+template<typename CounterType>
+void Dice<CounterType>::Precompute(const size_t maxN)
+{
+  for (size_t i = maxN; i > 0; --i)
+    counter.ComputeCounts(i);
+}
+
 template<typename StringType>
 double Dice<StringType>::Evaluate(const vector<size_t>& ngram1,
-                                  const vector<size_t>& ngram2,
-                                  NGramCounter<StringType>& counter)
+                                  const vector<size_t>& ngram2) const
 {
   const size_t sizeNGram1 = ngram1.size();
   const size_t sizeNGram2 = ngram2.size();

@@ -4,14 +4,22 @@
 #include "log_likelihood.hpp"
 #include <yawiel/prereqs.hpp>
 
+using namespace std;
+
 namespace yawiel{
 namespace colext{
 
-template<typename StringType>
-double LogLikelihood<StringType>::
+template<typename CounterType>
+void LogLikelihood<CounterType>::Precompute(const size_t maxN)
+{
+  for (size_t i = maxN; i > 0; --i)
+    counter.ComputeCounts(i);
+}
+
+template<typename CounterType>
+double LogLikelihood<CounterType>::
 EvaluateBinary(const vector<size_t>& ngram1,
-               const vector<size_t>& ngram2,
-               NGramCounter<StringType>& counter)
+               const vector<size_t>& ngram2) const
 {
   // Calculate contingency table.
   // Counts both.
@@ -61,10 +69,9 @@ EvaluateBinary(const vector<size_t>& ngram1,
   return LL;
 }
 
-template<typename StringType>
-double LogLikelihood<StringType>::Evaluate(const vector<size_t>& ngram1,
-                                           const vector<size_t>& ngram2,
-                                           NGramCounter<StringType>& counter)
+template<typename CounterType>
+double LogLikelihood<CounterType>::Evaluate(const vector<size_t>& ngram1,
+                                           const vector<size_t>& ngram2) const
 {
   double sum = 0;
   const size_t sizeNGram = ngram1.size() + ngram2.size();
@@ -78,7 +85,7 @@ double LogLikelihood<StringType>::Evaluate(const vector<size_t>& ngram1,
   {
     vector<size_t> gram1(bothGrams.begin(), bothGrams.begin() + i);
     vector<size_t> gram2(bothGrams.begin() + i, bothGrams.end());
-    sum += EvaluateBinary(gram1, gram2, counter);
+    sum += EvaluateBinary(gram1, gram2);
   }
 
   return 2 * sum;

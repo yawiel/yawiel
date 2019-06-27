@@ -16,6 +16,7 @@ BOOST_AUTO_TEST_CASE(BasicCounter)
   Corpus<std::string> corpus;
   corpus.LoadString(text);
   NGramCounter<std::string> counter(corpus);
+  counter.ComputeCounts(2);
   auto counts = counter.GetCounts(2);
 
   vector<size_t> bi1 {0, 1};
@@ -40,6 +41,7 @@ BOOST_AUTO_TEST_CASE(SerializedCounter)
   corpusDummy.LoadString(text);
   NGramCounter<std::string> counter1(corpusText);
   NGramCounter<std::string> counter2(corpusDummy);
+  counter1.ComputeCounts(2);
   auto counts1 = counter1.GetCounts(2);
 
   // Save counter.
