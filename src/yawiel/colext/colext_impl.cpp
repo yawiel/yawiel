@@ -5,7 +5,9 @@
 #include <yawiel/prereqs.hpp>
 #include <omp.h>
 
+using namespace std;
 using namespace yawiel::util;
+using namespace yawiel::text;
 
 namespace yawiel{
 namespace colext{
@@ -52,10 +54,6 @@ GetSortedScores(vector<pair<vector<size_t>, double>>& scores, const size_t n)
   }
 
   // Compute scores.
-  counter.GetCounts(4);
-  counter.GetCounts(3);
-  counter.GetCounts(2);
-  counter.GetCounts(1);
   #pragma omp parallel for
   for (size_t i = 0; i < scores.size(); ++i)
     scores[i].second = EPType::Evaluate(scores[i].first, counter);

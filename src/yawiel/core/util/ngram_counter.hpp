@@ -59,6 +59,7 @@ class NGramCounter
 
   /**
    * Compute counts of all corpus n-grams for a given n.
+   * Algorithmic complexity is O(n).
    *
    * This is NOT a thread_safe method.
    *
@@ -68,27 +69,30 @@ class NGramCounter
 
   /**
    * Get all ngrams of a given size and their counts.
+   * Algorithmic complexity is O(1).
    *
    * This is a thread safe method.
    *
    * @pre Counts for this size need to have been already computed.
    * @param n Size of the n-grams to get the count from.
    */
-  inline const CountsType& GetCounts(const size_t n) { return counts->at(n); }
+  inline const CountsType& GetCounts(const size_t n) const
+      { return counts->at(n); }
 
   /**
    * Get the count of a given ngram. If the ngram does not show up in the corpus
    * then the count will be 0.
+   * Algorithmic complexity is O(1).
    *
    * This is a thread safe method.
    *
    * @pre Counts for the size of the ngram need to have been already computed.
    * @param n Size of the n-grams to get the count from.
    */
-  size_t GetCounts(const std::vector<size_t>& ngram);
+  size_t GetCounts(const std::vector<size_t>& ngram) const;
 
   //! Get total amount of ngrams of size n in the corpus.
-  size_t GetNumberOfNGrams(const size_t n) const
+  inline size_t GetNumberOfNGrams(const size_t n) const
       { return corpus.TotalNGrams(n); }
 
   //! Serialize the counts to some archive.
@@ -104,7 +108,7 @@ class NGramCounterRule
 
   const CorpusType& corpus;
 
-  size_t n;
+  const size_t n;
 
  public:
   NGramCounterRule(std::unordered_map<std::vector<size_t>, size_t>& counts,

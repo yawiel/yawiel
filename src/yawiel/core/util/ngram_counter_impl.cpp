@@ -86,7 +86,8 @@ void NGramCounter<StringType>::ComputeCounts(const size_t n)
 }
 
 template<typename StringType>
-size_t NGramCounter<StringType>::GetCounts(const std::vector<size_t>& ngram)
+size_t NGramCounter<StringType>::
+GetCounts(const std::vector<size_t>& ngram) const
 {
   const NGramCounter<StringType>::CountsType& nCounts =
       counts->at(ngram.size());

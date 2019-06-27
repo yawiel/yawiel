@@ -5,10 +5,6 @@
 #include <yawiel/core/text/corpus.hpp>
 #include <yawiel/core/util/ngram_counter.hpp>
 
-using namespace std;
-using namespace yawiel::text;
-using namespace yawiel::util;
-
 namespace yawiel{
 namespace colext{
 
@@ -35,22 +31,25 @@ class Colext
     }
   };
 
-  const Corpus<StringType>& corpus;
+  const text::Corpus<StringType>& corpus;
 
-  NGramCounter<StringType>& counter;
+  util::NGramCounter<StringType>& counter;
 
  public:
-  Colext(const Corpus<StringType>& corpus, NGramCounter<StringType>& counter);
+  Colext(const text::Corpus<StringType>& corpus,
+         util::NGramCounter<StringType>& counter);
 
-  void GetScores(unordered_map<vector<size_t>, double>& scores,
+  void GetScores(std::unordered_map<std::vector<size_t>, double>& scores,
                  const size_t n = 3);
 
-  void GetSortedScores(vector<pair<vector<size_t>, double>>& scores,
-                       const size_t n = 3);
+  void GetSortedScores(
+      std::vector<std::pair<std::vector<size_t>, double>>& scores,
+      const size_t n = 3);
 
-  void ScoresToCSV(const vector<pair<vector<size_t>, double>>& scores,
-                   const std::string filePath,
-                   const typename StringType::value_type CSVSeparator = CSV_SEPARATOR);
+  void ScoresToCSV(
+      const std::vector<std::pair<std::vector<size_t>, double>>& scores,
+      const std::string filePath,
+      const typename StringType::value_type CSVSeparator = CSV_SEPARATOR);
 };
 
 }
