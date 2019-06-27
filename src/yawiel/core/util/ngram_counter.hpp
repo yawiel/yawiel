@@ -9,9 +9,6 @@
 #include <vector>
 #include <yawiel/core/util/vector_hash.cpp>
 
-using namespace std;
-using namespace yawiel;
-
 namespace yawiel{
 namespace util{
 
@@ -19,18 +16,18 @@ template<typename StringType>
 class NGramCounter
 {
  public:
-  typedef unordered_map<std::vector<size_t>, size_t> CountsType;
+  typedef std::unordered_map<std::vector<size_t>, size_t> CountsType;
 
  private:
-  const Corpus<StringType>& corpus;
+  const text::Corpus<StringType>& corpus;
 
-  map<size_t, CountsType>* counts;
+  std::map<size_t, CountsType>* counts;
 
   void Count(const size_t n,
              CountsType& map);
 
  public:
-  NGramCounter(const Corpus<StringType>& corpus);
+  NGramCounter(const text::Corpus<StringType>& corpus);
 
   ~NGramCounter();
 
@@ -49,14 +46,14 @@ template<typename StringType>
 class NGramCounterRule
 {
  private:
-  unordered_map<std::vector<size_t>, size_t>& counts;
+  std::unordered_map<std::vector<size_t>, size_t>& counts;
 
   const text::Corpus<StringType>& corpus;
 
   size_t n;
 
  public:
-  NGramCounterRule(unordered_map<std::vector<size_t>, size_t>& counts,
+  NGramCounterRule(std::unordered_map<std::vector<size_t>, size_t>& counts,
                    const text::Corpus<StringType>& corpus,
                    const size_t n) :
     counts(counts),
@@ -64,7 +61,7 @@ class NGramCounterRule
     n(n)
   {};
 
-  void Base(const typename Corpus<StringType>::NGram ngram);
+  void Base(const typename text::Corpus<StringType>::NGram ngram);
 };
 
 }

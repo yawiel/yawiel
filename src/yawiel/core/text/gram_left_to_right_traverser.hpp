@@ -4,8 +4,6 @@
 #include <yawiel/prereqs.hpp>
 #include <yawiel/core/text/corpus.hpp>
 
-using namespace yawiel::text;
-
 namespace yawiel{
 namespace text{
 

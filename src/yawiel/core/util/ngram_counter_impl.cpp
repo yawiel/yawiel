@@ -8,7 +8,7 @@ namespace util{
 
 template<typename StringType>
 void NGramCounterRule<StringType>::
-Base(const typename Corpus<StringType>::NGram ngram)
+Base(const typename text::Corpus<StringType>::NGram ngram)
 {
   size_t firstGram = ngram.first;
   const size_t lastGram = ngram.second;
@@ -24,9 +24,9 @@ Base(const typename Corpus<StringType>::NGram ngram)
 }
 
 template<typename StringType>
-NGramCounter<StringType>::NGramCounter(const Corpus<StringType>& corpus) :
+NGramCounter<StringType>::NGramCounter(const text::Corpus<StringType>& corpus) :
   corpus(corpus),
-  counts(new map<size_t, NGramCounter<StringType>::CountsType>)
+  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>)
 {
   // Nothing to do.
 }
@@ -42,7 +42,7 @@ void NGramCounter<StringType>::
 Count(const size_t n, NGramCounter<StringType>::CountsType& map)
 {
   NGramCounterRule<StringType> rule(map, corpus, n);
-  typedef GramLeftToRightTraverser<
+  typedef text::GramLeftToRightTraverser<
     NGramCounterRule<StringType>, StringType> TRV;
   TRV traverser(rule, corpus);
   traverser.Traverse(n);
@@ -86,7 +86,7 @@ serialize(Archive& ar, const unsigned int /* version */)
 {
   // Modify const element. Other than the constructor this is the only place
   // it's modified.
-  ar & BOOST_SERIALIZATION_NVP(const_cast<Corpus<StringType>&>(corpus));
+  ar & BOOST_SERIALIZATION_NVP(const_cast<text::Corpus<StringType>&>(corpus));
 
   // Clean memory if necessary.
   if (Archive::is_loading::value)
