@@ -14,6 +14,9 @@ class PMI
   CounterType& counter;
 
  public:
+  //! Convenience typedef.
+  typedef CounterType AMCounterType;
+
   //! Constructor.
   PMI(CounterType& counter) :
       counter(counter)

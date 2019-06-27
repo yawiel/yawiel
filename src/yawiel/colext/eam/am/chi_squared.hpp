@@ -17,6 +17,9 @@ class ChiSquared
   double EvaluateBinary(const std::vector<size_t>& ngram1,
                         const std::vector<size_t>& ngram2) const;
  public:
+  //! Convenience typedef.
+  typedef CounterType AMCounterType;
+
   //! Constructor.
   ChiSquared(CounterType& counter) :
       counter(counter)

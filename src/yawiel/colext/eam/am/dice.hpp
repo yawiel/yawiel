@@ -15,6 +15,9 @@ class Dice
   CounterType& counter;
 
  public:
+  //! Convenience typedef.
+  typedef CounterType AMCounterType;
+
   //! Constructor.
   Dice(CounterType& counter) :
       counter(counter)
