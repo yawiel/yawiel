@@ -25,7 +25,7 @@ const std::string text1 = "this is a test a test";
 BOOST_AUTO_TEST_CASE(PMITest)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
 
   vector<size_t> gram1 {0, 1};
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(PMITest)
 BOOST_AUTO_TEST_CASE(DiceTest)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(DiceTest)
 BOOST_AUTO_TEST_CASE(G1Test)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   vector<size_t> aTestA {2, 3, 2};
   const double G1Result =
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(G1Test)
 BOOST_AUTO_TEST_CASE(G2Test)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(G2Test)
 BOOST_AUTO_TEST_CASE(G3Test)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(G3Test)
 BOOST_AUTO_TEST_CASE(G4Test)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(G4Test)
 BOOST_AUTO_TEST_CASE(G5Test)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(G5Test)
 BOOST_AUTO_TEST_CASE(G6DiceTest)
 {
   Corpus<string> corpus;
-  corpus.loadString(text1);
+  corpus.LoadString(text1);
   NGramCounter<string> counter(corpus);
   const auto& vocab = corpus.GetVocabulary();
 
@@ -199,8 +199,8 @@ BOOST_AUTO_TEST_CASE(G6DiceTest)
   vector<size_t> testA {gram[2], gram[3]};
 
   const size_t n = gram.size();
-  const size_t countGram = counter.getCounts(gram);
-  const size_t countBi = counter.getCounts(isA) + counter.getCounts(testA);
+  const size_t countGram = counter.GetCounts(gram);
+  const size_t countBi = counter.GetCounts(isA) + counter.GetCounts(testA);
   const double manualResult = (n * countGram) / countBi;
 
   BOOST_REQUIRE_CLOSE(g6Result, manualResult, 1e-8);

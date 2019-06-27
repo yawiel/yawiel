@@ -28,13 +28,9 @@ void Colext<StringType, EPType, AMType>::
 GetScores(std::unordered_map<std::vector<size_t>, double>& scores,
           const size_t n)
 {
-  std::time_t now = time(0);
-  std::cout << "START COMPUTING: " << now << std::endl;
-  const unordered_map<std::vector<size_t>, size_t>& counts = counter.getCounts(n);
+  const unordered_map<std::vector<size_t>, size_t>& counts = counter.GetCounts(n);
   for (auto it = counts.begin(); it != counts.end(); ++it)
     scores[it->first] = EPType::Evaluate(it->first, counter);
-  now = time(0);
-  std::cout << "FINISH COMPUTING: " << now << std::endl;
 }
 
 template<typename StringType,
@@ -43,10 +39,7 @@ template<typename StringType,
 void Colext<StringType, EPType, AMType>::
 GetSortedScores(vector<pair<vector<size_t>, double>>& scores, const size_t n)
 {
-  std::time_t now = time(0);
-  std::cout << "START COMPUTING: " << now << std::endl;
-
-  const unordered_map<std::vector<size_t>, size_t>& counts = counter.getCounts(n);
+  const unordered_map<std::vector<size_t>, size_t>& counts = counter.GetCounts(n);
   scores.clear();
   scores.reserve(counts.size());
   scores.resize(counts.size());
@@ -59,19 +52,16 @@ GetSortedScores(vector<pair<vector<size_t>, double>>& scores, const size_t n)
   }
 
   // Compute scores.
-  //counter.getCounts(4);
-  counter.getCounts(3);
-  counter.getCounts(2);
-  counter.getCounts(1);
+  counter.GetCounts(4);
+  counter.GetCounts(3);
+  counter.GetCounts(2);
+  counter.GetCounts(1);
   #pragma omp parallel for
   for (size_t i = 0; i < scores.size(); ++i)
     scores[i].second = EPType::Evaluate(scores[i].first, counter);
 
   // Sort results
   std::sort(scores.begin(), scores.end(), SortPred());
-
-  now = time(0);
-  std::cout << "FINISH COMPUTING: " << now << std::endl;
 }
 
 template<typename StringType,
@@ -83,14 +73,17 @@ ScoresToCSV(const vector<pair<vector<size_t>, double>>& scores,
             const typename StringType::value_type CSVSeparator)
 {
   std::basic_ofstream<typename StringType::value_type> file(filePath);
-  file << "ngram,score" << std::endl;
+  file << "ngram,score,frequency" << std::endl;
   for (size_t i = 0; i < scores.size(); ++i)
   {
     // Write string to file.
     file << QUOTE << corpus.VectorToString(scores[i].first, STRING_SEPARATOR)
          << QUOTE;
     // Write score.
-    file << CSVSeparator << scores[i].second << std::endl;
+    file << CSVSeparator << scores[i].second;
+    // Write frequency.
+    file << CSVSeparator << counter.GetCounts(scores[i].first)
+         << std::endl;
   }
   file.close();
 }

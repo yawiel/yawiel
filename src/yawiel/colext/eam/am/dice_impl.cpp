@@ -22,9 +22,9 @@ double Dice<StringType>::Evaluate(const vector<size_t>& ngram1,
   bothGrams.insert(bothGrams.end(), ngram1.begin(), ngram1.end());
   bothGrams.insert(bothGrams.end(), ngram2.begin(), ngram2.end());
 
-  const size_t frec1 = counter.getCounts(ngram1);
-  const size_t frec2 = counter.getCounts(ngram2);
-  const size_t frecBoth = counter.getCounts(bothGrams);
+  const size_t frec1 = counter.GetCounts(ngram1);
+  const size_t frec2 = counter.GetCounts(ngram2);
+  const size_t frecBoth = counter.GetCounts(bothGrams);
 
   return ((double) (2 * frecBoth)) / (frec1 + frec2);
 }

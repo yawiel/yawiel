@@ -34,12 +34,12 @@ class NGramCounter
 
   ~NGramCounter();
 
-  const CountsType& getCounts(const size_t n = 2);
+  const CountsType& GetCounts(const size_t n = 2);
 
-  size_t getCounts(const std::vector<size_t>& ngram);
+  size_t GetCounts(const std::vector<size_t>& ngram);
 
-  size_t getNumberOfNGrams(const size_t n) const
-      { return corpus.totalNGrams(n); }
+  size_t GetNumberOfNGrams(const size_t n) const
+      { return corpus.TotalNGrams(n); }
 
   template<typename Archive>
   void serialize(Archive& ar, const unsigned int /* version */);

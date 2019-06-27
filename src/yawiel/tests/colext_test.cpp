@@ -67,13 +67,14 @@ template<typename StringType,
          typename AM>
 void EvalColext(Corpus<StringType>& corpus,
                 NGramCounter<StringType>& counter,
-                size_t n)
+                size_t n,
+                StringType filePath)
 {
   vector<pair<vector<size_t>, double>> scores;
   Colext<StringType, EP, AM> colext(corpus,counter);
   colext.GetSortedScores(scores, n);
   //PrintExtremes(scores, corpus);
-  colext.ScoresToCSV(scores, "scores.csv");
+  //colext.ScoresToCSV(scores, filePath);
   scores.clear();
 }
 
@@ -81,24 +82,123 @@ BOOST_AUTO_TEST_CASE(SortedScoresTest)
 {
   Corpus<std::string> corpus;
   std::cout << "Loading file..." << std::endl;
-  corpus.loadFile("big.txt");
+  corpus.LoadFile("big.txt");
   std::cout << "File loaded..." << std::endl;
   NGramCounter<std::string> counter(corpus);
   vector<pair<vector<size_t>, double>> scores;
 
   // Some tests.
-  /*
   std::cout << "--- G0 - LogLike - n3 ------" << std::endl;
   EvalColext<string, G0<string, LogLikelihood<string>>, LogLikelihood<string>>
-    (corpus, counter, 3);
+    (corpus, counter, 3, "scores_G0_LogLike_n3.csv");
+
+  std::cout << "--- G0 - LogLike - n2 ------" << std::endl;
+  EvalColext<string, G0<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 2, "scores_G0_LogLike_n2.csv");
 
   std::cout << "--- G0 - ChiSquared - n3 ---" << std::endl;
   EvalColext<string, G0<string, ChiSquared<string>>, ChiSquared<string>>
-    (corpus, counter, 3);
-  */
+    (corpus, counter, 3, "scores_G0_ChiSquared_n3.csv");
+
+  std::cout << "--- G0 - ChiSquared - n2 ---" << std::endl;
+  EvalColext<string, G0<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 2, "scores_G0_ChiSquared_n2.csv");
+
+  std::cout << "--- G1 - PMI - n4 ----------" << std::endl;
+  EvalColext<string, G1<string, PMI<string>>, PMI<string>>
+    (corpus, counter, 4, "scores_G1_PMI_n4.csv");
+
   std::cout << "--- G1 - PMI - n3 ----------" << std::endl;
   EvalColext<string, G1<string, PMI<string>>, PMI<string>>
-    (corpus, counter, 3);
+    (corpus, counter, 3, "scores_G1_PMI_n3.csv");
+
+  std::cout << "--- G1 - PMI - n2 ----------" << std::endl;
+  EvalColext<string, G1<string, PMI<string>>, PMI<string>>
+    (corpus, counter, 2, "scores_G1_PMI_n2.csv");
+
+  std::cout << "--- G1 - Dice - n4 ----------" << std::endl;
+  EvalColext<string, G1<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 4, "scores_G1_Dice_n4.csv");
+
+  std::cout << "--- G1 - Dice - n3 ----------" << std::endl;
+  EvalColext<string, G1<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 3, "scores_G1_Dice_n3.csv");
+
+  std::cout << "--- G1 - Dice - n2 ----------" << std::endl;
+  EvalColext<string, G1<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 2, "scores_G1_Dice_n2.csv");
+
+  std::cout << "--- G1 - LogLikelihood - n4 ----------" << std::endl;
+  EvalColext<string, G1<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 4, "scores_G1_LogLikelihood_n4.csv");
+
+  std::cout << "--- G1 - LogLikelihood - n3 ----------" << std::endl;
+  EvalColext<string, G1<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 3, "scores_G1_LogLikelihood_n3.csv");
+
+  std::cout << "--- G1 - LogLikelihood - n2 ----------" << std::endl;
+  EvalColext<string, G1<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 2, "scores_G1_LogLikelihood_n2.csv");
+
+  std::cout << "--- G1 - ChiSquared - n4 ----------" << std::endl;
+  EvalColext<string, G1<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 4, "scores_G1_ChiSquared_n4.csv");
+
+  std::cout << "--- G1 - ChiSquared - n3 ----------" << std::endl;
+  EvalColext<string, G1<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 3, "scores_G1_ChiSquared_n3.csv");
+
+  std::cout << "--- G1 - ChiSquared - n2 ----------" << std::endl;
+  EvalColext<string, G1<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 2, "scores_G1_ChiSquared_n2.csv");
+
+  std::cout << "--- G2 - PMI - n4 ----------" << std::endl;
+  EvalColext<string, G2<string, PMI<string>>, PMI<string>>
+    (corpus, counter, 4, "scores_G2_PMI_n4.csv");
+
+  std::cout << "--- G2 - PMI - n3 ----------" << std::endl;
+  EvalColext<string, G2<string, PMI<string>>, PMI<string>>
+    (corpus, counter, 3, "scores_G2_PMI_n3.csv");
+
+  std::cout << "--- G2 - PMI - n2 ----------" << std::endl;
+  EvalColext<string, G2<string, PMI<string>>, PMI<string>>
+    (corpus, counter, 2, "scores_G2_PMI_n2.csv");
+
+  std::cout << "--- G2 - Dice - n4 ----------" << std::endl;
+  EvalColext<string, G2<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 4, "scores_G2_Dice_n4.csv");
+
+  std::cout << "--- G2 - Dice - n3 ----------" << std::endl;
+  EvalColext<string, G2<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 3, "scores_G2_Dice_n3.csv");
+
+  std::cout << "--- G2 - Dice - n2 ----------" << std::endl;
+  EvalColext<string, G2<string, Dice<string>>, Dice<string>>
+    (corpus, counter, 2, "scores_G2_Dice_n2.csv");
+
+  std::cout << "--- G2 - LogLikelihood - n4 ----------" << std::endl;
+  EvalColext<string, G2<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 4, "scores_G2_LogLikelihood_n4.csv");
+
+  std::cout << "--- G2 - LogLikelihood - n3 ----------" << std::endl;
+  EvalColext<string, G2<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 3, "scores_G2_LogLikelihood_n3.csv");
+
+  std::cout << "--- G2 - LogLikelihood - n2 ----------" << std::endl;
+  EvalColext<string, G2<string, LogLikelihood<string>>, LogLikelihood<string>>
+    (corpus, counter, 2, "scores_G2_LogLikelihood_n2.csv");
+
+  std::cout << "--- G2 - ChiSquared - n4 ----------" << std::endl;
+  EvalColext<string, G2<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 4, "scores_G2_ChiSquared_n4.csv");
+
+  std::cout << "--- G2 - ChiSquared - n3 ----------" << std::endl;
+  EvalColext<string, G2<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 3, "scores_G2_ChiSquared_n3.csv");
+
+  std::cout << "--- G2 - ChiSquared - n2 ----------" << std::endl;
+  EvalColext<string, G2<string, ChiSquared<string>>, ChiSquared<string>>
+    (corpus, counter, 2, "scores_G2_ChiSquared_n2.csv");
   /*
   std::cout << "--- G2 - Dice - n3 ---------" << std::endl;
   EvalColext<string, G2<string, Dice<string>>, Dice<string>>

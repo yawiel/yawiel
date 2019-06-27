@@ -19,15 +19,15 @@ double ChiSquared<StringType>::EvaluateBinary(const vector<size_t>& ngram1,
   bothGrams.reserve(sizeNGram);
   bothGrams.insert(bothGrams.end(), ngram1.begin(), ngram1.end());
   bothGrams.insert(bothGrams.end(), ngram2.begin(), ngram2.end());
-  const size_t both = counter.getCounts(bothGrams);
+  const size_t both = counter.GetCounts(bothGrams);
   // Counts ngram1 only.
-  const size_t only1 = counter.getCounts(ngram1) - both;
+  const size_t only1 = counter.GetCounts(ngram1) - both;
   // Counts ngram2 only.
-  const size_t only2 = counter.getCounts(ngram2) - both;
+  const size_t only2 = counter.GetCounts(ngram2) - both;
   // Total count of ngrams.
   size_t totalCount = 0;
   for (size_t i = 1; i <= bothGrams.size(); ++i)
-    totalCount += counter.getNumberOfNGrams(i);
+    totalCount += counter.GetNumberOfNGrams(i);
   // Counts neither ngram1 nor ngram2.
   const size_t neither = totalCount - both - only1 - only2;
 

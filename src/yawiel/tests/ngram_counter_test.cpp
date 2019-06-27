@@ -14,9 +14,9 @@ BOOST_AUTO_TEST_CASE(BasicCounter)
 {
   const std::string text = "this is a test a test";
   Corpus<std::string> corpus;
-  corpus.loadString(text);
+  corpus.LoadString(text);
   NGramCounter<std::string> counter(corpus);
-  auto counts = counter.getCounts(2);
+  auto counts = counter.GetCounts(2);
 
   vector<size_t> bi1 {0, 1};
   vector<size_t> bi2 {1, 2};
@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_CASE(SerializedCounter)
   const std::string dummyText = "nothing";
   const std::string fileName = "test_serialized_counter.bin";
   Corpus<std::string> corpusText;
-  corpusText.loadString(text);
+  corpusText.LoadString(text);
   Corpus<std::string> corpusDummy;
-  corpusDummy.loadString(text);
+  corpusDummy.LoadString(text);
   NGramCounter<std::string> counter1(corpusText);
   NGramCounter<std::string> counter2(corpusDummy);
-  auto counts1 = counter1.getCounts(2);
+  auto counts1 = counter1.GetCounts(2);
 
   // Save counter.
   std::ofstream outputFile(fileName);
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(SerializedCounter)
     boost::archive::binary_iarchive inputArchive(inputFile);
     inputArchive >> BOOST_SERIALIZATION_NVP(counter2);
   }
-  auto counts2 = counter2.getCounts(2);
+  auto counts2 = counter2.GetCounts(2);
 
   // Check counts are the same.
   vector<size_t> bi1 {0, 1};

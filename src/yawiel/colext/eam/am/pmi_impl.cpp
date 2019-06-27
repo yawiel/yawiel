@@ -16,18 +16,18 @@ double PMI<StringType>::Evaluate(const vector<size_t>& ngram1,
   const size_t sizeNGram1 = ngram1.size();
   const size_t sizeNGram2 = ngram2.size();
   const size_t sizeNGram = sizeNGram1 + sizeNGram2;
-  const size_t totalN1 = counter.getNumberOfNGrams(sizeNGram1);
-  const size_t totalN2 = counter.getNumberOfNGrams(sizeNGram2);
-  const size_t totalN = counter.getNumberOfNGrams(sizeNGram);
+  const size_t totalN1 = counter.GetNumberOfNGrams(sizeNGram1);
+  const size_t totalN2 = counter.GetNumberOfNGrams(sizeNGram2);
+  const size_t totalN = counter.GetNumberOfNGrams(sizeNGram);
 
   vector<size_t> bothGrams;
   bothGrams.reserve(sizeNGram);
   bothGrams.insert(bothGrams.end(), ngram1.begin(), ngram1.end());
   bothGrams.insert(bothGrams.end(), ngram2.begin(), ngram2.end());
 
-  const size_t counts1 = counter.getCounts(ngram1);
-  const size_t counts2 = counter.getCounts(ngram2);
-  const size_t countsBoth = counter.getCounts(bothGrams);
+  const size_t counts1 = counter.GetCounts(ngram1);
+  const size_t counts2 = counter.GetCounts(ngram2);
+  const size_t countsBoth = counter.GetCounts(bothGrams);
 
   const double prob1 = (double) counts1 / totalN1;
   const double prob2 = (double) counts2 / totalN2;

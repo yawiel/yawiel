@@ -6,9 +6,6 @@
 #include <boost/tokenizer.hpp>
 #include <fstream>
 
-#include <ctime>
-#include <iostream>
-
 using namespace yawiel;
 
 namespace yawiel{
@@ -17,23 +14,51 @@ namespace text{
 template<typename StringType>
 Corpus<StringType>::Corpus():
   vocabulary(nullptr),
-  corpusTokens(nullptr)
+  corpusTokens(nullptr),
+  ownVocabulary(false),
+  ownCorpusTokens(false)
 {
   SetSeparators(GetDefaultSeparators());
 }
 
 template<typename StringType>
-void Corpus<StringType>::loadFile(const std::string& filePath)
+Corpus<StringType>::Corpus(const Corpus<StringType>& other):
+  vocabulary(new containers::Vocabulary<StringType>(*other.vocabulary)),
+  corpusTokens(new std::vector<size_t>(*other.corpusTokens)),
+  separators(StringType(other.separators)),
+  ownVocabulary(true),
+  ownCorpusTokens(true)
 {
-  std::time_t now = time(0);
-  std::cout << "LOAD FILE: " << now << std::endl;
-  if (vocabulary)
+  // Nothing to do here.
+}
+
+template<typename StringType>
+Corpus<StringType>::Corpus(Corpus<StringType>&& other):
+  vocabulary(other.vocabulary),
+  corpusTokens(other.corpusTokens),
+  separators(std::move(other.separators)),
+  ownVocabulary(other.ownVocabulary),
+  ownCorpusTokens(other.ownCorpusTokens)
+{
+  other.vocabulary = nullptr;
+  other.corpusTokens = nullptr;
+  other.ownVocabulary = false;
+  other.ownCorpusTokens = false;
+}
+
+template<typename StringType>
+void Corpus<StringType>::LoadFile(const std::string& filePath)
+{
+  if (ownVocabulary)
     delete vocabulary;
-  if (corpusTokens)
+  if (ownCorpusTokens)
     delete corpusTokens;
 
   vocabulary = new containers::Vocabulary<StringType>;
   corpusTokens = new std::vector<size_t>;
+
+  ownVocabulary = true;
+  ownCorpusTokens = true;
 
   std::basic_ifstream<typename StringType::value_type> file(filePath);
   StringType tempString;
@@ -48,21 +73,21 @@ void Corpus<StringType>::loadFile(const std::string& filePath)
     for (auto token = tokens.cbegin(); token != tokens.cend(); ++token)
       corpusTokens->push_back(vocabulary->at(*token));
   }
-
-  now = time(0);
-  std::cout << "FINISHED LOADING: " << now << std::endl;
 }
 
 template<typename StringType>
-void Corpus<StringType>::loadString(StringType text)
+void Corpus<StringType>::LoadString(StringType text)
 {
-  if (vocabulary)
+  if (ownVocabulary)
     delete vocabulary;
-  if (corpusTokens)
+  if (ownCorpusTokens)
     delete corpusTokens;
 
   vocabulary = new containers::Vocabulary<StringType>;
   corpusTokens = new std::vector<size_t>;
+
+  ownVocabulary = true;
+  ownCorpusTokens = true;
 
   std::vector<StringType> tokens;
 
@@ -78,9 +103,9 @@ void Corpus<StringType>::loadString(StringType text)
 template<typename StringType>
 Corpus<StringType>::~Corpus()
 {
-  if (vocabulary)
+  if (ownVocabulary)
     delete vocabulary;
-  if (corpusTokens)
+  if (ownCorpusTokens)
     delete corpusTokens;
 }
 
@@ -93,7 +118,8 @@ SetSeparators(StringType newSeparators)
 
 template<typename StringType>
 StringType Corpus<StringType>::
-VectorToString(const std::vector<size_t>& ngram, typename StringType::value_type separator) const
+VectorToString(const std::vector<size_t>& ngram,
+               typename StringType::value_type separator) const
 {
   StringType string;
   for (size_t i = 0; i < ngram.size(); ++i)
@@ -103,7 +129,7 @@ VectorToString(const std::vector<size_t>& ngram, typename StringType::value_type
 }
 
 template<typename StringType>
-size_t Corpus<StringType>::totalNGrams(const size_t n) const
+size_t Corpus<StringType>::TotalNGrams(const size_t n) const
 {
   return corpusTokens->size() - n + 1;
 }
@@ -117,6 +143,7 @@ void Corpus<StringType>::TokenizeLine(StringType& text,
   // Lowercase.
   boost::algorithm::to_lower(text);
 
+  // Tokenization.
   typedef boost::tokenizer<
       boost::char_separator<typename StringType::value_type>,
       typename StringType::const_iterator,
@@ -126,6 +153,7 @@ void Corpus<StringType>::TokenizeLine(StringType& text,
       sep(separators.c_str());
   tokenizer tokens(text, sep);
 
+  // Save tokens sequence.
   for (auto it = tokens.begin(); it != tokens.end(); ++it)
     tokensStrings.push_back(*it);
 }
@@ -135,17 +163,24 @@ template<typename Archive>
 void Corpus<StringType>::serialize(Archive& ar,
                                    const unsigned int /* version */)
 {
+  ar & BOOST_SERIALIZATION_NVP(separators);
+
   // Clean memory if necessary.
   if (Archive::is_loading::value)
   {
-    delete vocabulary;
-    delete corpusTokens;
-    //delete[] separators;
+    if (ownVocabulary)
+      delete vocabulary;
+    if (ownCorpusTokens)
+      delete corpusTokens;
+
+    // After loading we own the objects.
+    ownVocabulary = true;
+    ownCorpusTokens = true;
   }
 
+  // Serialize the rest of values.
   ar & BOOST_SERIALIZATION_NVP(vocabulary);
   ar & BOOST_SERIALIZATION_NVP(corpusTokens);
-  //ar & BOOST_SERIALIZATION_NVP(separators);
 }
 
 }

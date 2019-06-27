@@ -50,34 +50,26 @@ Count(const size_t n, NGramCounter<StringType>::CountsType& map)
 
 template<typename StringType>
 const typename NGramCounter<StringType>::CountsType&
-NGramCounter<StringType>::getCounts(const size_t n)
+NGramCounter<StringType>::GetCounts(const size_t n)
 {
   auto it = counts->find(n);
   if (it == counts->cend())
   {
-    std::time_t now = time(0);
-    std::cout << "START COUNTING: " << now << std::endl;
     counts->emplace(n, NGramCounter<StringType>::CountsType());
     Count(n, counts->at(n));
-    now = time(0);
-    std::cout << "FINISHED COUNTING: " << now << std::endl;
     return counts->at(n);
   }
   return it->second;
 }
 
 template<typename StringType>
-size_t NGramCounter<StringType>::getCounts(const std::vector<size_t>& ngram)
+size_t NGramCounter<StringType>::GetCounts(const std::vector<size_t>& ngram)
 {
   auto it = counts->find(ngram.size());
   if (it == counts->cend())
   {
-    std::time_t now = time(0);
-    std::cout << "START COUNTING: " << now << std::endl;
     counts->emplace(ngram.size(), NGramCounter<StringType>::CountsType());
     Count(ngram.size(), counts->at(ngram.size()));
-    now = time(0);
-    std::cout << "FINISHED COUNTING: " << now << std::endl;
     it = counts->find(ngram.size());
   }
   auto findNGram = (it->second).find(ngram);

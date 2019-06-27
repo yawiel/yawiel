@@ -14,13 +14,13 @@ template<typename StringType>
 double G0<StringType, PMI<StringType>>::
 Evaluate(const std::vector<size_t>& ngram, NGramCounter<StringType>& counter)
 {
-  const size_t totalN = counter.getNumberOfNGrams(ngram.size());
-  const double probNGram = (double) counter.getCounts(ngram) / totalN;
+  const size_t totalN = counter.GetNumberOfNGrams(ngram.size());
+  const double probNGram = (double) counter.GetCounts(ngram) / totalN;
 
-  const size_t total1 = counter.getNumberOfNGrams(1);
+  const size_t total1 = counter.GetNumberOfNGrams(1);
   double mult = 1;
   for (size_t i = 0; i < ngram.size(); ++i)
-    mult *= (double) counter.getCounts(std::vector<size_t> {ngram[i]}) / total1;
+    mult *= (double) counter.GetCounts(std::vector<size_t> {ngram[i]}) / total1;
 
   return std::log2(probNGram / mult);
 }
@@ -33,9 +33,9 @@ Evaluate(const std::vector<size_t>& ngram,  NGramCounter<StringType>& counter)
 
   size_t sum = 0;
   for (size_t i = 0; i < n; ++i)
-    sum += counter.getCounts(std::vector<size_t> {ngram[i]});
+    sum += counter.GetCounts(std::vector<size_t> {ngram[i]});
 
-  return (double) (n * counter.getCounts(ngram)) / sum;
+  return (double) (n * counter.GetCounts(ngram)) / sum;
 }
 
 template<typename StringType>
