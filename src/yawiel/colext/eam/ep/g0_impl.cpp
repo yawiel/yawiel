@@ -3,16 +3,20 @@
 
 #include "g0.hpp"
 #include <yawiel/prereqs.hpp>
-#include <vector>
 
 using namespace std;
 
 namespace yawiel{
 namespace colext{
 
-template<typename StringType>
-double G0<StringType, PMI<StringType>>::
-Evaluate(const std::vector<size_t>& ngram, NGramCounter<StringType>& counter)
+template<typename AMType, typename CounterType>
+double G0<AMType, CounterType>::Evaluate(const vector<size_t>& ngram) const
+{
+  return EvaluateAM<AMType>(ngram);
+}
+
+template<typename AMType, typename CounterType>
+double G0<AMType, CounterType>::EvaluatePMI(const vector<size_t>& ngram) const
 {
   const size_t totalN = counter.GetNumberOfNGrams(ngram.size());
   const double probNGram = (double) counter.GetCounts(ngram) / totalN;
@@ -25,9 +29,8 @@ Evaluate(const std::vector<size_t>& ngram, NGramCounter<StringType>& counter)
   return std::log2(probNGram / mult);
 }
 
-template<typename StringType>
-double G0<StringType, Dice<StringType>>::
-Evaluate(const std::vector<size_t>& ngram,  NGramCounter<StringType>& counter)
+template<typename AMType, typename CounterType>
+double G0<AMType, CounterType>::EvaluateDice(const vector<size_t>& ngram) const
 {
   const size_t n = ngram.size();
 
@@ -36,20 +39,6 @@ Evaluate(const std::vector<size_t>& ngram,  NGramCounter<StringType>& counter)
     sum += counter.GetCounts(std::vector<size_t> {ngram[i]});
 
   return (double) (n * counter.GetCounts(ngram)) / sum;
-}
-
-template<typename StringType>
-double G0<StringType, ChiSquared<StringType>>::
-Evaluate(const std::vector<size_t>& ngram,  NGramCounter<StringType>& counter)
-{
-  return ChiSquared<StringType>::Evaluate(ngram, vector<size_t>(), counter);
-}
-
-template<typename StringType>
-double G0<StringType, LogLikelihood<StringType>>::
-Evaluate(const std::vector<size_t>& ngram,  NGramCounter<StringType>& counter)
-{
-  return LogLikelihood<StringType>::Evaluate(ngram, vector<size_t>(), counter);
 }
 
 }
