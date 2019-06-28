@@ -41,6 +41,7 @@ BOOST_AUTO_TEST_CASE(BasicTest)
   
 }
 */
+ /*
 void PrintExtremes(const vector<pair<vector<size_t>, double>>& scores,
                    const Corpus<std::string>& corpus,
                    size_t n = 150)
@@ -212,6 +213,6 @@ BOOST_AUTO_TEST_CASE(SortedScoresTest)
   EvalColext<string, G4<string, PMI<string>>, PMI<string>>
     (corpus, counter, 2);
   */
-}
+  //}
 
 BOOST_AUTO_TEST_SUITE_END();

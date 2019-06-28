@@ -29,6 +29,23 @@ class Colext
     }
   };
 
+  /**
+   * Precompute counts needed for the EP, AM and n-gram size.
+   *
+   * @param n Size of n-gram collocations that we want to extract.
+   */
+  void Precompute(const size_t n);
+
+  /**
+   * Normalize scores.
+   *
+   * This method uses parallelization when available.
+   *
+   * @param scores Sorted vector of scores to normalize.
+   */
+  void NormalizeScores(
+      std::vector<std::pair<std::vector<size_t>, double>>& scores);
+
   //! Corpus to extract collocations from.
   text::Corpus<StringType>* corpus;
 
@@ -42,7 +59,7 @@ class Colext
   bool ownCounter;
 
   //! Association measure of the model.
-  EPType::EPAMType am;
+  typename EPType::EPAMType am;
 
   //! Extension pattern of the model.
   EPType ep;
@@ -75,6 +92,8 @@ class Colext
   /**
    * Compute scores for a given size, EP and AM for n-grams in the corpus.
    *
+   * This method CANNOT use paralellization.
+   *
    * @pre Corpus has te be loaded.
    * @param scores Hash table where scores from ngrams will be stored.
    * @param n Size of the n-grams for which scores will be computed.
@@ -86,6 +105,8 @@ class Colext
 
   /**
    * Compute scores for a given size, EP and AM for n-grams in the corpus.
+   *
+   * This method can use paralellization when available.
    *
    * @pre Corpus has te be loaded.
    * @param scores Vector where sorted scores from ngrams will be stored.
@@ -107,7 +128,7 @@ class Colext
    */
   template<typename IterablePairType>
   void ScoresToCSV(
-      const /*std::vector<std::pair<std::vector<size_t>, double>>*/ IterablePairType& scores,
+      const IterablePairType& scores,
       const std::string filePath,
       const typename StringType::value_type csvSeparator = CSV_SEPARATOR) const;
 
