@@ -28,6 +28,9 @@ class Corpus
   //! of IDs.
   bool ownCorpusTokens;
 
+  //! Whether a corpus has already been loaded or not.
+  bool loaded;
+
   /**
    * Tokenize a piece of text.
    *
@@ -95,6 +98,9 @@ class Corpus
   //! Get the vocabulary of the corpus.
   const containers::Vocabulary<StringType>& GetVocabulary() const
       { return *vocabulary; }
+
+  //! Get whether a corpus has already been loaded.
+  bool Loaded() const { return loaded; }
 
   template<typename T = StringType>
   T GetDefaultSeparators(const typename std::enable_if<

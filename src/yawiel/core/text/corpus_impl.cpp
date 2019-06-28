@@ -16,7 +16,8 @@ Corpus<StringType>::Corpus():
   vocabulary(nullptr),
   corpusTokens(nullptr),
   ownVocabulary(false),
-  ownCorpusTokens(false)
+  ownCorpusTokens(false),
+  loaded(false)
 {
   SetSeparators(GetDefaultSeparators());
 }
@@ -27,7 +28,8 @@ Corpus<StringType>::Corpus(const Corpus<StringType>& other):
   corpusTokens(new std::vector<size_t>(*other.corpusTokens)),
   separators(StringType(other.separators)),
   ownVocabulary(true),
-  ownCorpusTokens(true)
+  ownCorpusTokens(true),
+  loaded(other.loaded)
 {
   // Nothing to do here.
 }
@@ -38,7 +40,8 @@ Corpus<StringType>::Corpus(Corpus<StringType>&& other):
   corpusTokens(other.corpusTokens),
   separators(std::move(other.separators)),
   ownVocabulary(other.ownVocabulary),
-  ownCorpusTokens(other.ownCorpusTokens)
+  ownCorpusTokens(other.ownCorpusTokens),
+  loaded(other.loaded)
 {
   other.vocabulary = nullptr;
   other.corpusTokens = nullptr;
@@ -73,6 +76,8 @@ void Corpus<StringType>::LoadFile(const std::string& filePath)
     for (auto token = tokens.cbegin(); token != tokens.cend(); ++token)
       corpusTokens->push_back(vocabulary->at(*token));
   }
+
+  loaded = true;
 }
 
 template<typename StringType>
@@ -98,6 +103,8 @@ void Corpus<StringType>::LoadString(StringType text)
   // Add new tokens to the corpus.
   for (auto token = tokens.cbegin(); token != tokens.cend(); ++token)
     corpusTokens->push_back(vocabulary->at(*token));
+
+  loaded = true;
 }
 
 template<typename StringType>
@@ -164,6 +171,7 @@ void Corpus<StringType>::serialize(Archive& ar,
                                    const unsigned int /* version */)
 {
   ar & BOOST_SERIALIZATION_NVP(separators);
+  ar & BOOST_SERIALIZATION_NVP(loaded);
 
   // Clean memory if necessary.
   if (Archive::is_loading::value)

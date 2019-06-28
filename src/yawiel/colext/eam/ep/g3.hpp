@@ -18,6 +18,9 @@ class G3
   AMType& am;
 
  public:
+  //! Convenience typedef.
+  typedef AMType EPAMType;
+
   //! Constructor.
   G3(CounterType& counter, AMType& am) :
       counter(counter),

@@ -18,6 +18,9 @@ class G1
   AMType& am;
 
  public:
+  //! Convenience typedef.
+  typedef AMType EPAMType;
+
   //! Constructor.
   G1(CounterType& counter, AMType& am) :
       counter(counter),

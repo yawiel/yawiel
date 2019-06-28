@@ -8,9 +8,7 @@
 namespace yawiel{
 namespace colext{
 
-template<typename StringType,
-         typename EPType,
-         typename AMType>
+template<typename EPType, typename StringType = std::string>
 class Colext
 {
  private:
@@ -21,8 +19,8 @@ class Colext
 
   static const typename StringType::value_type CSV_SEPARATOR = ',';
 
-  // Comparator for sorting result scores.
-  struct SortPred
+  //! Comparator for sorting result scores.
+  struct SortScoresPred
   {
     inline bool operator()(const std::pair<std::vector<size_t>, double>& left,
                            const std::pair<std::vector<size_t>, double>& right)
@@ -31,25 +29,90 @@ class Colext
     }
   };
 
-  const text::Corpus<StringType>& corpus;
+  //! Corpus to extract collocations from.
+  text::Corpus<StringType>* corpus;
 
-  util::NGramCounter<StringType>& counter;
+  //! NGrams counter for the given corpus.
+  util::NGramCounter<StringType>* counter;
+
+  //! If true, the Colext model will be responsible for deleting the corpus.
+  bool ownCorpus;
+
+  //! If true, the Colext model will be responsible for deleting the counter.
+  bool ownCounter;
+
+  //! Association measure of the model.
+  EPType::EPAMType am;
+
+  //! Extension pattern of the model.
+  EPType ep;
 
  public:
-  Colext(const text::Corpus<StringType>& corpus,
-         util::NGramCounter<StringType>& counter);
+  //! Default constructor. After its use, it is needed to load a corpus.
+  Colext();
 
+  /**
+   * Construct Collext from an existing corpus and its counter.
+   *
+   * @param corpus Corpus to extract collocations from.
+   * @param counter Counter of ngrams in the corpus.
+   */
+  Colext(text::Corpus<StringType>* corpus,
+         util::NGramCounter<StringType>* counter);
+
+  //! Destructor.
+  ~Colext();
+
+  /**
+   * Load corpus form a text file.
+   *
+   * @param filePath Path to the text file with the corpus to extract
+   *                 collocations from.
+   * @post Corpus will be loaded.
+   */
+  void LoadCorpusFile(const std::string& filePath);
+
+  /**
+   * Compute scores for a given size, EP and AM for n-grams in the corpus.
+   *
+   * @pre Corpus has te be loaded.
+   * @param scores Hash table where scores from ngrams will be stored.
+   * @param n Size of the n-grams for which scores will be computed.
+   * @param normalizeScore Whether to normalize scores or not.
+   */
   void GetScores(std::unordered_map<std::vector<size_t>, double>& scores,
-                 const size_t n = 3);
+                 const size_t n,
+                 bool normalizeScore = false);
 
+  /**
+   * Compute scores for a given size, EP and AM for n-grams in the corpus.
+   *
+   * @pre Corpus has te be loaded.
+   * @param scores Vector where sorted scores from ngrams will be stored.
+   * @param n Size of the n-grams for which scores will be computed.
+   * @param normalizeScore Whether to normalize scores or not.
+   */
   void GetSortedScores(
       std::vector<std::pair<std::vector<size_t>, double>>& scores,
-      const size_t n = 3);
+      const size_t n,
+      bool normalizeScore = false);
 
+  /**
+   * Write computed scores to a CSV file.
+   *
+   * @param scores Iterable pair (i.e. pair<vector<size_t>, double>) to save in
+   *               a file.
+   * @param filePath Path where the CSV file will be writen.
+   * @param csvSeparator Separator for column values of the CSV file.
+   */
+  template<typename IterablePairType>
   void ScoresToCSV(
-      const std::vector<std::pair<std::vector<size_t>, double>>& scores,
+      const /*std::vector<std::pair<std::vector<size_t>, double>>*/ IterablePairType& scores,
       const std::string filePath,
-      const typename StringType::value_type CSVSeparator = CSV_SEPARATOR);
+      const typename StringType::value_type csvSeparator = CSV_SEPARATOR) const;
+
+  //! Whether a corpus has been loaded or not.
+  bool CorpusLoaded() const { return corpus->Loaded(); }
 };
 
 }

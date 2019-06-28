@@ -63,6 +63,9 @@ class G6
   { return am.Evaluate(ngram, std::vector<size_t>()); }
 
  public:
+  //! Convenience typedef.
+  typedef AMType EPAMType;
+
   //! Constructor.
   G6(CounterType& counter, AMType& am) :
       counter(counter),
