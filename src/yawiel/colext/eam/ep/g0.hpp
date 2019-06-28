@@ -2,6 +2,7 @@
 #define YAWIEL_COLEXT_EAM_EP_G0_HPP
 
 #include <yawiel/prereqs.hpp>
+#include <vector>
 #include <yawiel/colext/eam/am/pmi.hpp>
 #include <yawiel/colext/eam/am/dice.hpp>
 #include <yawiel/colext/eam/am/chi_squared.hpp>

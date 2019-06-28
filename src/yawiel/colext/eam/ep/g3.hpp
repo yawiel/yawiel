@@ -2,20 +2,46 @@
 #define YAWIEL_COLEXT_EAM_EP_G3_HPP
 
 #include <yawiel/prereqs.hpp>
-#include <yawiel/core/util/ngram_counter.hpp>
-
-using namespace std;
-using namespace yawiel::util;
+#include <vector>
 
 namespace yawiel{
 namespace colext{
 
-template<typename StringType, typename AMType>
+template<typename AMType, typename CounterType = typename AMType::AMCounterType>
 class G3
 {
+ private:
+  //! Counter from which counts will be obtained.
+  CounterType& counter;
+
+  //! Association measure that will be applied.
+  AMType& am;
+
  public:
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter);
+  //! Constructor.
+  G3(CounterType& counter, AMType& am) :
+      counter(counter),
+      am(am)
+  {}
+
+  /**
+   * Precompute all counts that will be needed for the EP.
+   *
+   * This is NOT a thread safe method.
+   *
+   * @param maxN Maximum size of the ngram that the EP will be used with.
+   */
+  void Precompute(const size_t maxN) { am.Precompute(maxN); }
+
+  /**
+   * Evaluate the EP on the given ngram.
+   *
+   * This is a thread safe method.
+   *
+   * @pre Precomputations have to be made before calling evaluation.
+   * @param ngram.
+   */
+  double Evaluate(const std::vector<size_t>& ngram) const;
 };
 
 }

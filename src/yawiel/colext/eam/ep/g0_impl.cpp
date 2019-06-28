@@ -2,7 +2,6 @@
 #define YAWIEL_COLEXT_EAM_EP_G0_IMPL_CPP
 
 #include "g0.hpp"
-#include <yawiel/prereqs.hpp>
 
 using namespace std;
 

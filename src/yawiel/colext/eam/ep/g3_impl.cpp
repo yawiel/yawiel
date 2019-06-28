@@ -3,16 +3,14 @@
 
 #include "g3.hpp"
 #include <yawiel/prereqs.hpp>
-#include <vector>
 
 using namespace std;
 
 namespace yawiel{
 namespace colext{
 
-template<typename StringType, typename AMType>
-double G3<StringType, AMType>::Evaluate(const std::vector<size_t>& ngram,
-                                        NGramCounter<StringType>& counter)
+template<typename AMType, typename CounterType>
+double G3<AMType, CounterType>::Evaluate(const vector<size_t>& ngram) const
 {
   const size_t n = ngram.size();
   double sum = 0;
@@ -21,7 +19,7 @@ double G3<StringType, AMType>::Evaluate(const std::vector<size_t>& ngram,
   {
     const vector<size_t> splitFirst {ngram[i]};
     const vector<size_t> splitSecond {ngram[i + 1]};
-    sum += AMType::Evaluate(splitFirst, splitSecond, counter);
+    sum += am.Evaluate(splitFirst, splitSecond);
   }
 
   return sum / (n - 1);

@@ -2,57 +2,91 @@
 #define YAWIEL_COLEXT_EAM_EP_G6_HPP
 
 #include <yawiel/prereqs.hpp>
-#include <yawiel/core/util/ngram_counter.hpp>
+#include <vector>
 #include <yawiel/colext/eam/am/pmi.hpp>
 #include <yawiel/colext/eam/am/dice.hpp>
 #include <yawiel/colext/eam/am/chi_squared.hpp>
 #include <yawiel/colext/eam/am/log_likelihood.hpp>
 
-using namespace std;
-using namespace yawiel::util;
-
 namespace yawiel{
 namespace colext{
 
-template<typename StringType, typename AMType>
+template<typename AMType, typename CounterType = typename AMType::AMCounterType>
 class G6
 {
- public:
-  // Throw error in compile time if G6 is not defined for selected AM.
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter) = delete;
-};
+  private:
+  //! Counter from which counts will be obtained.
+  CounterType& counter;
 
-template<typename StringType>
-class G6<StringType, PMI<StringType>>
-{
- public:
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter);
-};
+  //! Association measure that will be applied.
+  AMType& am;
 
-template<typename StringType>
-class G6<StringType, Dice<StringType>>
-{
- public:
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter);
-};
+  //! Evaluate PMI using G6.
+  double EvaluatePMI(const std::vector<size_t>& ngram) const;
 
-template<typename StringType>
-class G6<StringType, ChiSquared<StringType>>
-{
- public:
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter);
-};
+  //! Evaluate Dice using G6.
+  double EvaluateDice(const std::vector<size_t>& ngram) const;
 
-template<typename StringType>
-class G6<StringType, LogLikelihood<StringType>>
-{
+  //! SFINAE Evaluate for PMI AM.
+  template<typename AMEvalType>
+  inline double EvaluateAM(
+      const std::vector<size_t>& ngram,
+      const typename std::enable_if<
+          std::is_same<AMEvalType, PMI<CounterType>>::value>::type* = 0) const
+  { return EvaluatePMI(ngram); }
+
+  //! SFINAE Evaluate for Dice AM.
+  template<typename AMEvalType>
+  inline double EvaluateAM(
+      const std::vector<size_t>& ngram,
+      const typename std::enable_if<
+          std::is_same<AMEvalType, Dice<CounterType>>::value>::type* = 0)
+  const
+  { return EvaluateDice(ngram); }
+
+  //! SFINAE Evaluate for ChiSquared AM.
+  template<typename AMEvalType>
+  inline double EvaluateAM(
+      const std::vector<size_t>& ngram,
+      const typename std::enable_if<
+          std::is_same<AMEvalType, ChiSquared<CounterType>>::value>::type* = 0)
+  const
+  { return am.Evaluate(ngram, std::vector<size_t>()); }
+
+  //! SFINAE Evaluate for LogLikelihood AM.
+  template<typename AMEvalType>
+  inline double EvaluateAM(
+      const std::vector<size_t>& ngram,
+      const typename std::enable_if<
+          std::is_same<AMEvalType, LogLikelihood<CounterType>>::value
+      >::type* = 0) const
+  { return am.Evaluate(ngram, std::vector<size_t>()); }
+
  public:
-  static double Evaluate(const std::vector<size_t>& ngram,
-                         NGramCounter<StringType>& counter);
+  //! Constructor.
+  G6(CounterType& counter, AMType& am) :
+      counter(counter),
+      am(am)
+  {}
+
+  /**
+   * Precompute all counts that will be needed for the EP.
+   *
+   * This is NOT a thread safe method.
+   *
+   * @param maxN Maximum size of the ngram that the EP will be used with.
+   */
+  void Precompute(const size_t maxN) { am.Precompute(maxN); }
+
+  /**
+   * Evaluate the EP on the given ngram.
+   *
+   * This is a thread safe method.
+   *
+   * @pre Precomputations have to be made before calling evaluation.
+   * @param ngram.
+   */
+  double Evaluate(const std::vector<size_t>& ngram) const;
 };
 
 }
