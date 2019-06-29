@@ -12,3 +12,8 @@ target_link_libraries(yawiel_test
   ${Boost_SERIALIZATION_LIBRARY}
   ${Boost_LIBRARIES}
   )
+
+if (STATIC_BUILD)
+  set(CMAKE_EXE_LINKER_FLAGS "-static ${CMAKE_EXE_LINKER_FLAGS}")
+  target_link_libraries(yawiel_test -static-libgcc -static-libstdc++)
+endif()

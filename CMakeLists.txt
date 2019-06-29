@@ -61,11 +61,6 @@ endif()
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src/)
 
-# If static build then set static linking.
-if (STATIC_BUILD)
-  set(CMAKE_EXE_LINKER_FLAGS "-static ${CMAKE_EXE_LINKER_FLAGS}")
-endif ()
-
 # Build the project sources.
 add_subdirectory(src/yawiel)
 
