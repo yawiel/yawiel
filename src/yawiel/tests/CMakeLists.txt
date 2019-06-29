@@ -7,43 +7,8 @@ add_executable(yawiel_test
   container_test.cpp
 )
 
-#include_directories(${Boost_INCLUDE_DIRS})
-#target_include_directories(yawiel_test PRIVATE ${Boost_INCLUDE_DIRS})
-#target_compile_definitions(yawiel_test PRIVATE "BOOST_TEST_DYN_LINK=1")
-#target_link_libraries(yawiel_test
-#    #${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-#    #${Boost_SERIALIZATION_LIBRARY}
-#    ${Boost_LIBRARIES})
-# JUST FOR DWS TESTING PURPOSE USE ALL STATIC.
-
-#target_link_libraries(yawiel_test
-#    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-#    ${Boost_SERIALIZATION_LIBRARY})
-#set(CMAKE_EXE_LINKER_FLAGS "-static")
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-#target_link_libraries(yawiel_test -static-libgcc -static-libstdc++)
-# /lib64/libc.a /lib64/libm.a /usr/lib/libdl.a
-#enable_testing()
-
-#target_link_libraries(yawiel_test
-#  yawiel
-#  ${BOOST_LIBRARIES}
-#)
-
-#target_include_directories(yawiel_test PRIVATE ${Boost_INCLUDE_DIRS})
-#target_compile_definitions(yawiel_test PRIVATE "BOOST_TEST_DYN_LINK=1")
 target_link_libraries(yawiel_test
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    ${Boost_SERIALIZATION_LIBRARY})
-# JUST FOR DWS TESTING PURPOSE USE ALL STATIC.
-
-set(CMAKE_EXE_LINKER_FLAGS "-static")
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-target_link_libraries(yawiel_test -static-libgcc -static-libstdc++)
-# /lib64/libc.a /lib64/libm.a /usr/lib/libdl.a
-enable_testing()
-
-#target_link_libraries(yawiel_test
-#  yawiel
-#  ${BOOST_LIBRARIES}
-#)
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  ${Boost_SERIALIZATION_LIBRARY}
+  ${Boost_LIBRARIES}
+  )

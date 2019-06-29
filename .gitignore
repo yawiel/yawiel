@@ -1,5 +1,6 @@
 # Aditional ignores
 build*
+docs*
 cmake-build-*
 
 # Created by https://www.gitignore.io/api/linux,emacs,python,windows
