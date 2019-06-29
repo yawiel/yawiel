@@ -8,7 +8,7 @@
 namespace yawiel{
 namespace text{
 
-template<typename StringType = std::wstring>
+template<typename StringType = std::string>
 class Corpus
 {
  private:

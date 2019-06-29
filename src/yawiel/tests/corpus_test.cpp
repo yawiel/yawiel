@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(InstantiationTest)
 BOOST_AUTO_TEST_CASE(GramLeftToRightTest)
 {
   const std::wstring text = L"hi my name is Yawiel";
-  Corpus<> corpus;
+  Corpus<std::wstring> corpus;
   corpus.LoadString(text);
   TestRule<std::wstring> rules(corpus.GetTokens(), corpus);
   typedef GramLeftToRightTraverser<TestRule<std::wstring>, std::wstring> TRV;

@@ -132,8 +132,34 @@ class Colext
       const std::string filePath,
       const typename StringType::value_type csvSeparator = CSV_SEPARATOR) const;
 
+  /**
+   * Save model to file.
+   *
+   * @param filePath Path to the file where the model will be stored.
+   */
+  void SaveModel(const std::string& filePath) const;
+
+  /**
+   * Load model from file.
+   *
+   * @param filePath Path to the file that contains the model.
+   */
+  void LoadModel(const std::string& filePath);
+
   //! Whether a corpus has been loaded or not.
   bool CorpusLoaded() const { return corpus->Loaded(); }
+
+  //! Get the corpus.
+  const text::Corpus<StringType>& Corpus() const { return *corpus; }
+
+  //! Get the counter.
+  const util::NGramCounter<StringType>& Counter() const { return *counter; }
+
+  //! Get the association measure.
+  const typename EPType::EPAMType& AM() const { return am; }
+
+  //! Get the extension pattern.
+  const EPType& EP() const { return ep; }
 };
 
 }

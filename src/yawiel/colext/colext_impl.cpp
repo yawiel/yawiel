@@ -14,25 +14,25 @@ namespace colext{
 
 template<typename EPType, typename StringType>
 Colext<EPType, StringType>::Colext() :
-    corpus(new Corpus<StringType>),
-    counter(new NGramCounter<StringType>(corpus)),
+    corpus(new text::Corpus<StringType>),
+    counter(new util::NGramCounter<StringType>(*corpus)),
     ownCorpus(true),
     ownCounter(true),
-    am(EPType::EPAMType(counter)),
-    ep(EPType(counter, am))
+    am(typename EPType::EPAMType(*counter)),
+    ep(EPType(*counter, am))
 {
   // Nothing to do here.
 }
 
 template<typename EPType, typename StringType>
-Colext<EPType, StringType>::
-Colext(Corpus<StringType>* corpus, NGramCounter<StringType>* counter) :
+Colext<EPType, StringType>::Colext(text::Corpus<StringType>* corpus,
+                                   util::NGramCounter<StringType>* counter) :
   corpus(corpus),
   counter(counter),
   ownCorpus(false),
   ownCounter(false),
-  am(EPType::EPAMType(counter)),
-  ep(EPType(counter, am))
+  am(typename EPType::EPAMType(*counter)),
+  ep(EPType(*counter, am))
 {
   // Nothing to do here.
 }
@@ -90,7 +90,7 @@ GetScores(unordered_map<vector<size_t>, double>& scores,
 
   // Get scores ready.
   scores.clear();
-  const unordered_map<vector<size_t>, size_t>& counts = counter.GetCounts(n);
+  const unordered_map<vector<size_t>, size_t>& counts = counter->GetCounts(n);
 
   // Actual scores computations.
   for (auto it = counts.begin(); it != counts.end(); ++it)
@@ -129,7 +129,7 @@ GetSortedScores(vector<pair<vector<size_t>, double>>& scores,
   Precompute(n);
 
   // Get scores ready.
-  const unordered_map<vector<size_t>, size_t>& counts = counter.GetCounts(n);
+  const unordered_map<vector<size_t>, size_t>& counts = counter->GetCounts(n);
   scores.clear();
   scores.reserve(counts.size());
   scores.resize(counts.size());
@@ -160,7 +160,8 @@ ScoresToCSV(const IterablePairType& scores,
             const typename StringType::value_type csvSeparator) const
 {
   // Open file.
-  std::basic_ofstream<typename StringType::value_type> file(filePath);
+  std::basic_ofstream<typename StringType::value_type>
+      file(filePath.c_str(), std::ios::trunc | std::ios::out);
 
   // Write header.
   file << "ngram" << csvSeparator
@@ -176,8 +177,36 @@ ScoresToCSV(const IterablePairType& scores,
     // Write score.
     file << csvSeparator << it->second;
     // Write frequency.
-    file << csvSeparator << counter.GetCounts(it->first)
+    file << csvSeparator << counter->GetCounts(it->first)
          << std::endl;
+  }
+  file.close();
+}
+
+template<typename EPType, typename StringType>
+void Colext<EPType, StringType>::SaveModel(const std::string& filePath) const
+{
+  // Open file.
+  std::ofstream file(filePath.c_str(), std::ios::trunc | std::ios::out);
+
+  // Save to archive.
+  {
+    boost::archive::text_oarchive outputArchive(file);
+    outputArchive << *counter;
+  }
+  file.close();
+}
+
+template<typename EPType, typename StringType>
+void Colext<EPType, StringType>::LoadModel(const std::string& filePath)
+{
+  // Open file.
+  std::ifstream file(filePath.c_str());
+
+  // Load from archive.
+  {
+    boost::archive::text_iarchive inputArchive(file);
+    inputArchive >> *counter;
   }
   file.close();
 }

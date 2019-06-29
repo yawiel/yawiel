@@ -20,28 +20,57 @@ using namespace yawiel::util;
 using namespace yawiel::colext;
 
 BOOST_AUTO_TEST_SUITE(ColextTest);
-/*
+
 BOOST_AUTO_TEST_CASE(BasicTest)
 {
-  //const std::string text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-  //Corpus<std::string> corpus(text);
-  Corpus<std::string> corpus;
-  std::cout << "Loading file..." << std::endl;
-  corpus.loadFile("big.txt");
-  std::cout << "File loaded..." << std::endl;
-  Colext<std::string, G1<std::string, PMI<std::string>>, PMI<std::string>>
-    colext(corpus);
-  std::unordered_map<std::string, double> scores; 
-  colext.getScores(scores, 3);
+  const std::string text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+
+  //Corpus<> corpus;
+  //std::cout << "Loading file..." << std::endl;
+  //corpus.loadFile("big.txt");
+  //std::cout << "File loaded..." << std::endl;
+  //corpus.LoadText(text);
+  Colext<G1<PMI<NGramCounter<>>>> colext;
+  colext.LoadCorpusFile(std::string("../big.txt"));
+  vector<pair<vector<size_t>, double>> scores;
+  colext.GetSortedScores(scores, 3, true);
   
   for (auto kv : scores)
   {
-    std::cout << kv.first << ": " << kv.second << std::endl;
+    //std::cout<< colext.Corpus().VectorToString(kv.first, ' ') << " :: " << kv.second << std::endl;
   }
   
 }
-*/
- /*
+
+BOOST_AUTO_TEST_CASE(CountsSerialization)
+{
+  std::string text = "Hi hello hi hello this is a a a test test a";
+  std::unordered_map<std::vector<size_t>, double> scores1, scores2;
+  Corpus<> corpus;
+  corpus.LoadString(text);
+  NGramCounter<> counter(corpus);
+
+  // Compute model 1.
+  Colext<G1<PMI<NGramCounter<>>>> colext1(&corpus, &counter);
+  colext1.GetScores(scores1, 2);
+  colext1.SaveModel(std::string("../colext_model_1.txt"));
+
+  // Compute model 2.
+  Colext<G1<PMI<NGramCounter<>>>> colext2;
+  colext2.LoadModel(std::string("../colext_model_1.txt"));
+  colext2.GetScores(scores2, 2);
+
+  // Check results are equal.
+  for (const auto kv : scores1)
+  {
+    const auto it = scores2.find(kv.first);
+    const bool ngramsEqual = kv.first == it->first;
+    BOOST_REQUIRE_EQUAL(ngramsEqual, true);
+    BOOST_REQUIRE_CLOSE(kv.second, it->second, 1e-10);
+  }
+}
+
+/*
 void PrintExtremes(const vector<pair<vector<size_t>, double>>& scores,
                    const Corpus<std::string>& corpus,
                    size_t n = 150)
