@@ -30,8 +30,10 @@ BOOST_AUTO_TEST_CASE(BasicTest)
   //corpus.loadFile("big.txt");
   //std::cout << "File loaded..." << std::endl;
   //corpus.LoadText(text);
+  Corpus<> corpus;
+  corpus.LoadFile(std::string("../big.txt"));
   Colext<G1<PMI<NGramCounter<>>>> colext;
-  colext.LoadCorpusFile(std::string("../big.txt"));
+  colext.LoadCorpus(corpus);
   vector<pair<vector<size_t>, double>> scores;
   colext.GetSortedScores(scores, 3, true);
   
@@ -51,7 +53,7 @@ BOOST_AUTO_TEST_CASE(CountsSerialization)
   NGramCounter<> counter(corpus);
 
   // Compute model 1.
-  Colext<G1<PMI<NGramCounter<>>>> colext1(&corpus, &counter);
+  Colext<G1<PMI<NGramCounter<>>>> colext1(&counter);
   colext1.GetScores(scores1, 2);
   colext1.SaveModel(std::string("../colext_model_1.txt"));
 

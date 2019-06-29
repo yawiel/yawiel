@@ -21,10 +21,14 @@ class NGramCounter
 
  private:
   //! Corpus to compute counts from.
-  const text::Corpus<StringType>& corpus;
+  text::Corpus<StringType>* corpus;
 
   //! Counts from the corpus organized by size n.
   std::map<size_t, CountsType>* counts;
+
+  //! If this is true, the counter will be responsible for the corpus
+  //! destruction.
+  bool ownCorpus;
 
   //! If this is true, the counter will be responsible for the counts
   //! destruction.
@@ -40,13 +44,27 @@ class NGramCounter
              CountsType& map);
 
  public:
+  //! Default constructor.
+  NGramCounter();
+
   /**
-   * Construct a counter for a given corpus.
+   * Construct a counter for a given corpus. This will copy the corpus, if you
+   * don't want the corpus to be copied then you can use the move constructor
+   * with std::move().
    *
    * @pre Corpus needs to have been already tokenized and processed.
    * @param corpus Corpus to create a counter from.
    */
   NGramCounter(const text::Corpus<StringType>& corpus);
+
+  /**
+   * Construct a counter for a given corpus. This will take ownership of the
+   * corpus object.
+   *
+   * @pre Corpus needs to have been already tokenized and processed.
+   * @param corpus Corpus to create a counter from.
+   */
+  NGramCounter(text::Corpus<StringType>&& corpus);
 
   //! Copy constructor
   NGramCounter(const NGramCounter<StringType>& other);
@@ -93,7 +111,10 @@ class NGramCounter
 
   //! Get total amount of ngrams of size n in the corpus.
   inline size_t GetNumberOfNGrams(const size_t n) const
-      { return corpus.TotalNGrams(n); }
+      { return corpus->TotalNGrams(n); }
+
+  //! Get corpus.
+  const text::Corpus<StringType>& Corpus() const;
 
   //! Serialize the counts to some archive.
   template<typename Archive>

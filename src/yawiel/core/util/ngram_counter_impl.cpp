@@ -23,9 +23,30 @@ void NGramCounterRule<CorpusType>::Base(const typename CorpusType::NGram ngram)
 }
 
 template<typename StringType>
-NGramCounter<StringType>::NGramCounter(const text::Corpus<StringType>& corpus) :
-  corpus(corpus),
+NGramCounter<StringType>::NGramCounter() :
+  corpus(nullptr),
   counts(new std::map<size_t, NGramCounter<StringType>::CountsType>),
+  ownCorpus(false),
+  ownCounts(true)
+{
+  // Nothing to do.
+}
+
+template<typename StringType>
+NGramCounter<StringType>::NGramCounter(const text::Corpus<StringType>& corpus) :
+  corpus(new text::Corpus<StringType>(corpus)),
+  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>),
+  ownCorpus(true),
+  ownCounts(true)
+{
+  // Nothing to do.
+}
+
+template<typename StringType>
+NGramCounter<StringType>::NGramCounter(text::Corpus<StringType>&& corpus) :
+  corpus(new text::Corpus<StringType>(std::move(corpus))),
+  counts(new std::map<size_t, NGramCounter<StringType>::CountsType>),
+  ownCorpus(true),
   ownCounts(true)
 {
   // Nothing to do.
@@ -36,6 +57,7 @@ NGramCounter<StringType>::NGramCounter(const NGramCounter<StringType>& other) :
   corpus(other.corpus),
   counts(new std::map<size_t, NGramCounter<StringType>::CountsType>
              (*other.counts)),
+  ownCorpus(other.ownCorpus),
   ownCounts(true)
 {
   // Nothing to do.
@@ -45,15 +67,20 @@ template<typename StringType>
 NGramCounter<StringType>::NGramCounter(NGramCounter<StringType>&& other) :
   corpus(other.corpus),
   counts(other.counts),
+  ownCorpus(other.ownCorpus),
   ownCounts(true)
 {
+  other.corpus = new text::Corpus<StringType>;
   other.counts = new std::map<size_t, NGramCounter<StringType>::CountsType>;
+  other.ownCorpus = false;
   other.ownCounts = true;
 }
 
 template<typename StringType>
 NGramCounter<StringType>::~NGramCounter()
 {
+  if (ownCorpus)
+    delete corpus;
   if (ownCounts)
     delete counts;
 }
@@ -62,13 +89,19 @@ template<typename StringType>
 void NGramCounter<StringType>::
 Count(const size_t n, NGramCounter<StringType>::CountsType& map)
 {
+  if (!ownCorpus || !ownCounts)
+  {
+    throw std::runtime_error("Can't get counts: Counter needs to have a "
+                             "corpus");
+  }
+
   //Create rule.
-  NGramCounterRule<text::Corpus<StringType>> rule(map, corpus, n);
+  NGramCounterRule<text::Corpus<StringType>> rule(map, *corpus, n);
 
   // Create corpus traverser for the rule.
   typedef text::GramLeftToRightTraverser<
       NGramCounterRule<text::Corpus<StringType>>, StringType> TRV;
-  TRV traverser(rule, corpus);
+  TRV traverser(rule, *corpus);
 
   // Count ngrams.
   traverser.Traverse(n);
@@ -100,17 +133,26 @@ GetCounts(const std::vector<size_t>& ngram) const
 }
 
 template<typename StringType>
+const text::Corpus<StringType>& NGramCounter<StringType>::Corpus() const
+{
+  if (!ownCorpus)
+  {
+    throw std::runtime_error("Can't get corpus: Counter needs to have a "
+                             "corpus");
+  }
+  return *corpus;
+}
+
+template<typename StringType>
 template<typename Archive>
 void NGramCounter<StringType>::
 serialize(Archive& ar, const unsigned int /* version */)
 {
-  // Modify const element. Other than the constructor this is the only place
-  // it's modified.
-  ar & BOOST_SERIALIZATION_NVP(const_cast<text::Corpus<StringType>&>(corpus));
-
   // Clean memory if necessary.
   if (Archive::is_loading::value)
   {
+    if (ownCorpus)
+      delete corpus;
     if (ownCounts)
       delete counts;
 
@@ -118,7 +160,10 @@ serialize(Archive& ar, const unsigned int /* version */)
     ownCounts = true;
   }
 
+  // Rest of serializations.
+  ar & BOOST_SERIALIZATION_NVP(corpus);
   ar & BOOST_SERIALIZATION_NVP(counts);
+  ar & BOOST_SERIALIZATION_NVP(ownCorpus);
 }
 
 }

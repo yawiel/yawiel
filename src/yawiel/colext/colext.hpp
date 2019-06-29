@@ -33,8 +33,9 @@ class Colext
    * Precompute counts needed for the EP, AM and n-gram size.
    *
    * @param n Size of n-gram collocations that we want to extract.
+   * @param ep Extension for which counts will be precomputed.
    */
-  void Precompute(const size_t n);
+  void Precompute(const size_t n, EPType& ep);
 
   /**
    * Normalize scores.
@@ -46,23 +47,14 @@ class Colext
   void NormalizeScores(
       std::vector<std::pair<std::vector<size_t>, double>>& scores);
 
-  //! Corpus to extract collocations from.
-  text::Corpus<StringType>* corpus;
-
   //! NGrams counter for the given corpus.
   util::NGramCounter<StringType>* counter;
-
-  //! If true, the Colext model will be responsible for deleting the corpus.
-  bool ownCorpus;
 
   //! If true, the Colext model will be responsible for deleting the counter.
   bool ownCounter;
 
-  //! Association measure of the model.
-  typename EPType::EPAMType am;
-
-  //! Extension pattern of the model.
-  EPType ep;
+  //! Whether the model has been trained or not.
+  bool trained;
 
  public:
   //! Default constructor. After its use, it is needed to load a corpus.
@@ -71,30 +63,27 @@ class Colext
   /**
    * Construct Collext from an existing corpus and its counter.
    *
-   * @param corpus Corpus to extract collocations from.
    * @param counter Counter of ngrams in the corpus.
    */
-  Colext(text::Corpus<StringType>* corpus,
-         util::NGramCounter<StringType>* counter);
+  Colext(util::NGramCounter<StringType>* counter);
 
   //! Destructor.
   ~Colext();
 
   /**
-   * Load corpus form a text file.
+   * Load corpus.
    *
-   * @param filePath Path to the text file with the corpus to extract
-   *                 collocations from.
-   * @post Corpus will be loaded.
+   * @param corpus Corpus object to train the model from.
+   * @post Model will have been trained.
    */
-  void LoadCorpusFile(const std::string& filePath);
+  void LoadCorpus(const text::Corpus<StringType>& corpus);
 
   /**
    * Compute scores for a given size, EP and AM for n-grams in the corpus.
    *
    * This method CANNOT use paralellization.
    *
-   * @pre Corpus has te be loaded.
+   * @pre Model needs to be trained.
    * @param scores Hash table where scores from ngrams will be stored.
    * @param n Size of the n-grams for which scores will be computed.
    * @param normalizeScore Whether to normalize scores or not.
@@ -108,7 +97,7 @@ class Colext
    *
    * This method can use paralellization when available.
    *
-   * @pre Corpus has te be loaded.
+   * @pre Model needs to be trained.
    * @param scores Vector where sorted scores from ngrams will be stored.
    * @param n Size of the n-grams for which scores will be computed.
    * @param normalizeScore Whether to normalize scores or not.
@@ -146,20 +135,14 @@ class Colext
    */
   void LoadModel(const std::string& filePath);
 
-  //! Whether a corpus has been loaded or not.
-  bool CorpusLoaded() const { return corpus->Loaded(); }
+  //! Whether the model has been trained or not.
+  bool Trained() const { return trained; }
 
   //! Get the corpus.
-  const text::Corpus<StringType>& Corpus() const { return *corpus; }
+  const text::Corpus<StringType>& Corpus() const;
 
   //! Get the counter.
-  const util::NGramCounter<StringType>& Counter() const { return *counter; }
-
-  //! Get the association measure.
-  const typename EPType::EPAMType& AM() const { return am; }
-
-  //! Get the extension pattern.
-  const EPType& EP() const { return ep; }
+  const util::NGramCounter<StringType>& Counter() const;
 };
 
 }

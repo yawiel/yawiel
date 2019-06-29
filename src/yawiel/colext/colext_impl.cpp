@@ -14,25 +14,18 @@ namespace colext{
 
 template<typename EPType, typename StringType>
 Colext<EPType, StringType>::Colext() :
-    corpus(new text::Corpus<StringType>),
-    counter(new util::NGramCounter<StringType>(*corpus)),
-    ownCorpus(true),
-    ownCounter(true),
-    am(typename EPType::EPAMType(*counter)),
-    ep(EPType(*counter, am))
+    counter(nullptr),
+    ownCounter(false),
+    trained(false)
 {
   // Nothing to do here.
 }
 
 template<typename EPType, typename StringType>
-Colext<EPType, StringType>::Colext(text::Corpus<StringType>* corpus,
-                                   util::NGramCounter<StringType>* counter) :
-  corpus(corpus),
+Colext<EPType, StringType>::Colext(util::NGramCounter<StringType>* counter) :
   counter(counter),
-  ownCorpus(false),
   ownCounter(false),
-  am(typename EPType::EPAMType(*counter)),
-  ep(EPType(*counter, am))
+  trained(true)
 {
   // Nothing to do here.
 }
@@ -40,24 +33,26 @@ Colext<EPType, StringType>::Colext(text::Corpus<StringType>* corpus,
 template<typename EPType, typename StringType>
 Colext<EPType, StringType>::~Colext()
 {
-  if (ownCorpus)
-    delete corpus;
   if (ownCounter)
     delete counter;
 }
 
 template<typename EPType, typename StringType>
-void Colext<EPType, StringType>::LoadCorpusFile(const std::string& filePath)
+void Colext<EPType, StringType>::
+LoadCorpus(const text::Corpus<StringType>& corpus)
 {
-  if (ownCorpus)
-    corpus->LoadFile(filePath);
-  else
-    throw std::runtime_error("Corpus not owned by Collext: Text must be loaded "
-                             "directly into the corpus object");
+  // Free resources.
+  if (ownCounter)
+    delete counter;
+
+  // Create counter.
+  counter = new util::NGramCounter<StringType>(corpus);
+  ownCounter = true;
+  trained = true;
 }
 
 template<typename EPType, typename StringType>
-void Colext<EPType, StringType>::Precompute(const size_t n)
+void Colext<EPType, StringType>::Precompute(const size_t n, EPType& ep)
 {
   if (std::is_same<EPType, G4<typename EPType::EPAMType,
                               NGramCounter<StringType>>>::value)
@@ -85,8 +80,17 @@ GetScores(unordered_map<vector<size_t>, double>& scores,
           const size_t n,
           bool normalizeScore)
 {
+  if (!trained)
+  {
+    throw std::runtime_error("Can't get scores: Colext model needs to be "
+                             "trained");
+  }
+
+  typename EPType::EPAMType am(*counter);
+  EPType ep(*counter, am);
+
   // Precompute counts.
-  Precompute(n);
+  Precompute(n, ep);
 
   // Get scores ready.
   scores.clear();
@@ -125,8 +129,17 @@ GetSortedScores(vector<pair<vector<size_t>, double>>& scores,
                 const size_t n,
                 bool normalizeScore)
 {
+  if (!trained)
+  {
+    throw std::runtime_error("Can't get scores: Colext model needs to be "
+                             "trained");
+  }
+
+  typename EPType::EPAMType am(*counter);
+  EPType ep(*counter, am);
+
   // Precompute counts.
-  Precompute(n);
+  Precompute(n, ep);
 
   // Get scores ready.
   const unordered_map<vector<size_t>, size_t>& counts = counter->GetCounts(n);
@@ -159,6 +172,7 @@ ScoresToCSV(const IterablePairType& scores,
             const std::string filePath,
             const typename StringType::value_type csvSeparator) const
 {
+  const text::Corpus<StringType>& corpus = counter->Corpus();
   // Open file.
   std::basic_ofstream<typename StringType::value_type>
       file(filePath.c_str(), std::ios::trunc | std::ios::out);
@@ -186,6 +200,10 @@ ScoresToCSV(const IterablePairType& scores,
 template<typename EPType, typename StringType>
 void Colext<EPType, StringType>::SaveModel(const std::string& filePath) const
 {
+  if (!trained)
+    throw std::runtime_error("Can't save model: Colext model needs to be "
+                             "trained");
+
   // Open file.
   std::ofstream file(filePath.c_str(), std::ios::trunc | std::ios::out);
 
@@ -200,6 +218,12 @@ void Colext<EPType, StringType>::SaveModel(const std::string& filePath) const
 template<typename EPType, typename StringType>
 void Colext<EPType, StringType>::LoadModel(const std::string& filePath)
 {
+  if (!counter)
+  {
+    counter = new util::NGramCounter<StringType>;
+    ownCounter = true;
+  }
+
   // Open file.
   std::ifstream file(filePath.c_str());
 
@@ -208,6 +232,7 @@ void Colext<EPType, StringType>::LoadModel(const std::string& filePath)
     boost::archive::text_iarchive inputArchive(file);
     inputArchive >> *counter;
   }
+  trained = true;
   file.close();
 }
 
