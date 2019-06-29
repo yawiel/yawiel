@@ -47,10 +47,10 @@ BOOST_AUTO_TEST_CASE(BasicTest)
 BOOST_AUTO_TEST_CASE(CountsSerialization)
 {
   std::string text = "Hi hello hi hello this is a a a test test a";
-  std::unordered_map<std::vector<size_t>, double> scores1, scores2;
+  unordered_map<vector<size_t>, double> scores1, scores2;
   Corpus<> corpus;
   corpus.LoadString(text);
-  NGramCounter<> counter(corpus);
+  NGramCounter<> counter(std::move(corpus));
 
   // Compute model 1.
   Colext<G1<PMI<NGramCounter<>>>> colext1(&counter);

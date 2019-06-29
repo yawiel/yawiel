@@ -15,17 +15,20 @@ class G2
   CounterType& counter;
 
   //! Association measure that will be applied.
-  AMType& am;
+  AMType am;
 
  public:
   //! Convenience typedef.
   typedef AMType EPAMType;
 
   //! Constructor.
-  G2(CounterType& counter, AMType& am) :
+  G2(CounterType& counter, AMType am) :
       counter(counter),
       am(am)
   {}
+
+  //! Get the AM.
+  AMType& AM() { return am; }
 
   /**
    * Precompute all counts that will be needed for the EP.

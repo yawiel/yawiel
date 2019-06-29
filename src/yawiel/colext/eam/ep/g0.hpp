@@ -19,7 +19,7 @@ class G0
   CounterType& counter;
 
   //! Association measure that will be applied.
-  AMType& am;
+  AMType am;
 
   //! Evaluate PMI using G0.
   double EvaluatePMI(const std::vector<size_t>& ngram) const;
@@ -67,10 +67,13 @@ class G0
   typedef AMType EPAMType;
 
   //! Constructor.
-  G0(CounterType& counter, AMType& am) :
+  G0(CounterType& counter, AMType am) :
       counter(counter),
       am(am)
   {}
+
+  //! Get the AM.
+  AMType& AM() { return am; }
 
   /**
    * Precompute all counts that will be needed for the EP.
