@@ -2,8 +2,8 @@
 set(SOURCES
   corpus.hpp
   corpus_impl.cpp
-  gram_left_to_right_traverser.hpp
-  gram_left_to_right_traverser_impl.cpp
+  gram_traverser.hpp
+  gram_traverser_impl.cpp
 )
 
 # List of sources paths.

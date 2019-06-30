@@ -2,6 +2,7 @@
 #define YAWIEL_CORE_UTIL_COUNT_NGRAMS_IMPL_CPP
 
 #include "ngram_counter.hpp"
+#include <yawiel/core/text/gram_traverser.hpp>
 
 namespace yawiel{
 namespace util{
@@ -99,8 +100,8 @@ Count(const size_t n, NGramCounter<StringType>::CountsType& map)
   NGramCounterRule<text::Corpus<StringType>> rule(map, *corpus, n);
 
   // Create corpus traverser for the rule.
-  typedef text::GramLeftToRightTraverser<
-      NGramCounterRule<text::Corpus<StringType>>, StringType> TRV;
+  typedef text::GramTraverser<NGramCounterRule<text::Corpus<StringType>>,
+                              StringType> TRV;
   TRV traverser(rule, *corpus);
 
   // Count ngrams.

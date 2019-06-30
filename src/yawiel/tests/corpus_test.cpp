@@ -1,5 +1,5 @@
 #include <yawiel/core/text/corpus.hpp>
-#include <yawiel/core/text/gram_left_to_right_traverser.hpp>
+#include <yawiel/core/text/gram_traverser.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace yawiel;
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(GramLeftToRightTest)
   Corpus<std::wstring> corpus;
   corpus.LoadString(text);
   TestRule<std::wstring> rules(corpus.GetTokens(), corpus);
-  typedef GramLeftToRightTraverser<TestRule<std::wstring>, std::wstring> TRV;
+  typedef GramTraverser<TestRule<std::wstring>, std::wstring> TRV;
   TRV traverser(rules, corpus);
   traverser.Traverse(2);
   std::vector<std::wstring> ngrams = std::move(rules.getNGrams());
@@ -64,14 +64,6 @@ BOOST_AUTO_TEST_CASE(FileLoadTest)
   corpus.loadFile("SmallText.txt");
   for (auto token: corpus.GetTokens())
     break;
-}
-*/
-
-/*
-BOOST_AUTO_TEST_CASE(UTF16FileLoadTest)
-{
-  yawiel::text::Corpus<std::u16string> corpus;
-  corpus.loadFile("SmallText.txt");
 }
 */
 

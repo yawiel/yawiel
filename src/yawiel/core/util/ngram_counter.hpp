@@ -3,10 +3,6 @@
 
 #include <yawiel/prereqs.hpp>
 #include <yawiel/core/text/corpus.hpp>
-#include <yawiel/core/text/gram_left_to_right_traverser.hpp>
-#include <unordered_map>
-#include <map>
-#include <vector>
 #include <yawiel/core/util/vector_hash.cpp>
 
 namespace yawiel{
